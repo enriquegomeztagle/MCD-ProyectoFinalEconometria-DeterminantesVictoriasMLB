@@ -13,6 +13,7 @@
 \usepackage{colortbl}
 \usepackage{caption}
 \usepackage{booktabs}
+\usepackage{tabularx} 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 \title{Universidad Panamericana \\ Maestría en Ciencia de Datos 
@@ -250,16 +251,47 @@ Se calculó el coeficiente de correlación de Pearson y Spearman entre el númer
 
 Tanto Pearson como Spearman producen resultados consistentes: RunDiff y ERA son los predictores más fuertemente asociados con las victorias, mientras que los jonrones tienen un efecto más limitado. Esto anticipa que los modelos de regresión simple con RunDiff y ERA tendrán mayor poder explicativo que aquellos con HR.
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-%% TODO
 \section{Modelo de Regresión Simple (3 modelos)}
-\subsection{Ajustar el modelo de regresión:}
-Utilizar una herramienta estadística (como Excel, R, Python) para obtener los coeficientes de la regresión.
 
-\subsection{Interpretación de los resultados:}
-Analizar los coeficientes obtenidos, el valor de \(R^2\), el valor de \(p\) para cada variable independiente (para determinar si son significativas de manera individual).
+\subsection{Resultados y resumen de estimaciones}
 
-\subsection{Evaluación de la bondad de ajuste:}
-Evaluar si el modelo explica adecuadamente la variabilidad de la variable dependiente.
+Se ajustaron cuatro modelos de regresión lineal simple con \textbf{W} (victorias por temporada) 
+como variable dependiente y, por separado, como variables explicativas: \textbf{RunDiff}, \textbf{ERA}, \textbf{HR} y \textbf{\(\log(\text{HR}+1)\)}. Los resultados completos se muestran en la Tabla~\ref{tab:ols_simples}:
+
+\begin{table}[H]
+    \centering
+    \begin{tabularx}{\textwidth}{l *{14}{X}}
+    \input{../data/processed/ols_simple_summary.tex}
+    \end{tabularx}
+    \caption{Resumen de regresiones simples}
+    \label{tab:ols_summary}
+\end{table}
+
+\subsection{Interpretación de los resultados}
+
+\paragraph{W \(\sim\) RunDiff.}  
+El modelo presenta un ajuste sobresaliente: \(R^2=0.883\), con un error medio de apenas 4 juegos (RMSE \(=4.03\), MAE \(=3.21\)). El coeficiente estimado de 0.0997 implica que por cada 10 carreras de diferencia anotadas sobre el rival, un equipo gana en promedio una victoria adicional. El intercepto de 80.97 refleja que un equipo “neutral” (RunDiff=0) tiende a terminar con 81 victorias, lo cual coincide con el balance teórico de .500. Este es, con diferencia, el modelo más predictivo.
+
+\paragraph{W \(\sim\) ERA.}  
+La relación entre la efectividad de los lanzadores y las victorias también es significativa (\(p<0.001\)), con una pendiente de -14.44: reducir en 1.00 la ERA equivale aproximadamente a 14 victorias adicionales. Aunque el ajuste es más modesto que con RunDiff (\(R^2=0.43\)), este modelo ofrece una visión valiosa del rol del pitcheo en el éxito global del equipo.
+
+\paragraph{W \(\sim\) HR.}  
+Cada 10 jonrones se asocian con 1.25 victorias adicionales. Sin embargo, el poder explicativo es limitado (\(R^2=0.154\), RMSE=10.83). Esto refleja que, aunque los cuadrangulares ayudan, existen múltiples caminos ofensivos para anotar que no se capturan solo con HR.
+
+\paragraph{W \(\sim \log(\text{HR}+1)\).}  
+La transformación logarítmica produce resultados prácticamente idénticos a HR lineal (\(R^2=0.152\), RMSE=10.84). Esto confirma lo observado en el análisis exploratorio: en el rango de 90–300 HR, la relación con victorias es casi lineal y la transformación no mejora el ajuste.
+
+\subsection{Evaluación de la bondad de ajuste}
+
+\begin{itemize}
+    \item \textbf{Mejor modelo:} RunDiff domina en todos los indicadores (\(R^2\), AIC, BIC, RMSE, MAE).
+    \item \textbf{Modelo intermedio:} ERA es una métrica útil, con un ajuste razonable, que complementa la interpretación sabermétrica con una perspectiva puramente de pitcheo.
+    \item \textbf{Modelos débiles:} HR y \(\log(HR+1)\) muestran asociaciones significativas pero débiles, explicando solo un 15\% de la variabilidad de W.
+    \item \textbf{Pruebas de significancia:} En todos los casos, la prueba F global confirma que los modelos son estadísticamente significativos (\(p<0.001\)).
+    \item \textbf{Error de predicción:} Con RunDiff, el error típico es de 3–4 victorias por temporada; con ERA, sube a ~7–9; con HR, a casi 9–11. Esto cuantifica claramente la capacidad predictiva de cada variable.
+\end{itemize}
+
+\noindent En resumen, el diferencial de carreras es, como anticipa la teoría sabermétrica, el mejor predictor de victorias. Sin embargo, ERA aporta información clave sobre la importancia del pitcheo, mientras que los jonrones reflejan solo una parte limitada de la ofensiva.
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %% TODO
 \section{Formas Funcionales}
