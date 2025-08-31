@@ -12,6 +12,7 @@
 \usepackage{float}
 \usepackage{colortbl}
 \usepackage{caption}
+\usepackage{booktabs}
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 \title{Universidad Panamericana \\ Maestría en Ciencia de Datos 
@@ -198,10 +199,56 @@ Estos valores atípicos no necesariamente representan errores de medición, sino
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 \section{Análisis de Correlación}
 \subsection{Correlación entre las variables:}
-Realizar un análisis de correlación para examinar las relaciones entre la variable dependiente y las variables independientes, utilizando el coeficiente de correlación de Pearson o Spearman según corresponda.
 
-\subsection{Interpretación:}
-Identificar si existe una relación significativa entre las variables.
+Se calculó el coeficiente de correlación de Pearson y Spearman entre el número de victorias (W) y las variables explicativas 
+(RunDiff, ERA, HR y logHR1). Los resultados se resumen en la Tabla \ref{tab:corr_w_x} y en las Figuras 
+\ref{fig:heatmap_pearson}--\ref{fig:heatmap_spearman}.
+
+\begin{table}[H]
+    \centering
+    \caption{Correlación de W con variables explicativas}
+    \label{tab:corr_w_x}
+    \begin{tabular}{lrrrrr}
+    \toprule
+    Variable & Pearson r & p (Pearson) & Spearman $\rho$ & p (Spearman) & N \\
+    \midrule
+    RunDiff & 0.9395 & 0.0000 & 0.9398 & 0.0000 & 600 \\
+    HR & 0.3920 & 0.0000 & 0.3853 & 0.0000 & 600 \\
+    logHR1 & 0.3901 & 0.0000 & 0.3853 & 0.0000 & 600 \\
+    ERA & -0.6554 & 0.0000 & -0.6575 & 0.0000 & 600 \\
+    \bottomrule
+    \end{tabular}
+\end{table}
+    
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=0.75\textwidth]{../plots/bar_abs_r_W.png}
+    \caption{Fuerza de asociación absoluta (|r|) de cada predictor con W (Pearson).}
+    \label{fig:bar_abs_r}
+\end{figure}
+
+\begin{itemize}
+    \item \textbf{RunDiff} presenta la correlación más fuerte con $W (r = 0.94, p < 0.001)$, lo que confirma que la diferencia de carreras es un predictor casi determinístico del número de victorias.
+    \item \textbf{ERA} muestra una correlación negativa alta $(r = -0.66, p < 0.001)$. Esto indica que un menor promedio de carreras limpias permitidas (mejor pitcheo) está fuertemente asociado con más victorias.
+    \item \textbf{HR} y su transformación \textbf{logHR1} exhiben correlaciones positivas moderadas $(r \approx 0.39, p < 0.001)$. Los jonrones ayudan a ganar partidos, aunque no explican tanto como RunDiff o ERA. La similitud entre HR y logHR1 confirma que la transformación logarítmica apenas cambia la relación en el rango observado (90--300 jonrones).
+\end{itemize}
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=0.6\textwidth]{../plots/heatmap_corr_pearson.png}
+    \caption{Matriz de correlación (Pearson) entre W y las variables explicativas.}
+    \label{fig:heatmap_pearson}
+\end{figure}
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=0.6\textwidth]{../plots/heatmap_corr_spearman.png}
+    \caption{Matriz de correlación (Spearman) entre W y las variables explicativas.}
+    \label{fig:heatmap_spearman}
+\end{figure}
+
+Tanto Pearson como Spearman producen resultados consistentes: RunDiff y ERA son los predictores más fuertemente asociados con las victorias, mientras que los jonrones tienen un efecto más limitado. Esto anticipa que los modelos de regresión simple con RunDiff y ERA tendrán mayor poder explicativo que aquellos con HR.
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %% TODO
 \section{Modelo de Regresión Simple (3 modelos)}
