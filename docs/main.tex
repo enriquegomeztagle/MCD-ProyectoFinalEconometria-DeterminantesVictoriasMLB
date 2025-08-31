@@ -77,19 +77,125 @@ Para el análisis de regresión simple se seleccionaron tres variables distintas
 \end{itemize}
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-%% TODO
 \section{Análisis de Estadísticas Descriptivas}
-\subsection{Objetivo:}
-Resumir y describir las características principales de los datos.
 
-\subsection{Pasos:}
-Calcular medidas de tendencia central (media, mediana, moda). \\
-Calcular medidas de dispersión (desviación estándar, varianza, rango intercuartílico). \\
-Visualización de los datos (histogramas, diagramas de dispersión, boxplots) para cada variable. \\
-Identificar la presencia de valores atípicos o extremos.
+\subsection{Medidas de tendencia central y dispersión:}
+A partir del dateset maestro con las varibles y observaciones seleccionadas, se calculan las siguientes estadísticas descriptivas:
+\begin{table}[H]
+    \centering
+    \begin{tabular}{lrrrrrrrrrrr}
+        \hline
+            Variable & Count & Mean & Median & Mode & Std & Var & Min & Q1 & Q3 & IQR & Max \\
+        \hline
+            W       & 600 & 80.97 & 81.00 & 86.00 & 11.79 & 138.92 & 43.00 & 72.00 & 90.00 & 18.00 & 116.00 \\
+            RunDiff & 600 & 0.00  & 2.00  & 54.00 & 111.11 & 12344.79 & -337.00 & -87.00 & 81.25 & 168.25 & 300.00 \\
+            ERA     & 600 & 4.25  & 4.21  & 4.01  & 0.53  & 0.29 & 2.94 & 3.86 & 4.60 & 0.74 & 5.71 \\
+            HR      & 600 & 173.47 & 170.00 & 161.00 & 36.87 & 1359.12 & 91.00 & 148.00 & 199.00 & 51.00 & 307.00 \\
+            logHR1  & 600 & 5.14  & 5.14  & 5.09  & 0.21  & 0.05 & 4.52 & 5.00 & 5.30 & 0.29 & 5.73 \\
+            R       & 600 & 740.67 & 735.00 & 735.00 & 83.21 & 6924.21 & 513.00 & 684.00 & 795.25 & 111.25 & 978.00 \\
+            RA      & 600 & 740.67 & 733.00 & 715.00 & 88.93 & 7909.25 & 525.00 & 676.75 & 804.00 & 127.25 & 981.00 \\
+            G       & 600 & 161.96 & 162.00 & 162.00 & 0.31 & 0.10 & 161.00 & 162.00 & 162.00 & 0.00 & 163.00 \\
+            L       & 600 & 80.97 & 80.50 & 76.00 & 11.76 & 138.34 & 46.00 & 72.00 & 90.00 & 18.00 & 119.00 \\
+        \hline
+    \end{tabular}
+\end{table}
+
+A continuación se detallan las características principales:
+
+\begin{itemize}
+    \item \textbf{Victorias (W):} En promedio los equipos ganan 81 juegos por temporada , con una desviación estándar de 11.8. El rango va de 43 a 116 victorias, lo que refleja tanto equipos altamente competitivos como equipos en el extremo opuesto.
+    \item \textbf{Diferencia de carreras (RunDiff):} Tiene media cercana a cero, que sería esperado en un balance global de liga, pero una alta dispersión ($\approx 111$, rango de -337 a +300). Esto muestra que algunos equipos dominan ampliamente a sus rivales mientras otros son ampliamente superados.
+    \item \textbf{ERA (Efectividad del pitcheo):} Promedia 4.25, con valores típicos entre 3.9 y 4.6 (IQR = 0.74). La dispersión es moderada y refleja diferencias en la calidad del pitcheo entre equipos, con casos extremos desde 2.94 hasta 5.71.
+    \item \textbf{Jonrones (HR):} Los equipos conectan en promedio 173 cuadrangulares por temporada, con un rango entre 91 y 307. Esta variabilidad se ve reflejada por las distintas filosofías ofensivas.
+    \item \textbf{Transformación logarítmica (logHR1):} Reduce la dispersión ($\approx 0.21$) y comprime la escala, aunque en este rango de valores la distribución sigue un patrón casi lineal respecto a HR.
+    \item \textbf{Carreras anotadas (R) y recibidas (RA):} Ambas variables tienen media $\approx 741$, lo que es natural dado el equilibrio de la liga. Su dispersión ($\approx 83-89$) muestra diferencias en ofensiva y defensiva entre equipos.
+    \item \textbf{Juegos (G):} Es prácticamente constante en 162, como dicta el calendario, con variaciones mínimas por suspensiones o ajustes.
+    \item \textbf{Derrotas (L):} Presentan la misma estructura que las victorias, con media 81 y desviación de 11.7, dada la relación \(W+L \approx 162\).
+\end{itemize}
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\subsection{Visualización de los datos:}
+
+Con el fin de comprender mejor el comportamiento de las variables y su relación con las victorias, se generaron distintas visualizaciones: histogramas, boxplots, diagramas de dispersión, gráficas de pastel y una serie de tiempo de ejemplo.
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=0.65\textwidth]{../plots/all_histograms.png}
+    \caption{Histogramas de W, RunDiff, ERA, HR, logHR1, R, RA, G y L (2000--2019).}
+\end{figure}
+
+Los histogramas confirman distribuciones aproximadamente simétricas en \textbf{W} y \textbf{L}, con centro en 81 victorias/derrotas. 
+\textbf{RunDiff} muestra gran dispersión, confirmarndo que algunos equipos superan a sus rivales por cientos de carreras, mientras otros son ampliamente superados. 
+\textbf{ERA} se concentra en torno a 4, reflejando diferencias moderadas en pitcheo. 
+\textbf{HR} se distribuye entre 100-300, y su transformación \textbf{logHR1} comprime los valores extremos, suavizando colas. 
+\textbf{R} y \textbf{RA} tienen formas parecidas, centradas cerca de 740, lo que refleja equilibrio ofensivo-defensivo en la liga. 
+\textbf{G} es casi una constante en 162, validando la homogeneidad del calendario.\\
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=0.7\textwidth]{../plots/all_boxplots.png}
+    \caption{Boxplots por variable: dispersión, mediana y valores atípicos.}
+\end{figure}
+
+Los boxplots identifican \textit{outliers} relevantes: 
+(i) en \textbf{HR}, equipos con poder ofensivo distintivo (300+ HR), 
+(ii) en \textbf{R} se ven reflejados esos mismos casos extremos de producción ofensiva.
+(iii) en \textbf{G}, ligeras desviaciones (161 o 163 partidos), explicadas por suspensiones o dobles juegos. 
+En \textbf{RunDiff} se observan extremos tanto positivos como negativos, reflejando temporadas históricas dominantes o muy pobres.
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=\textwidth]{../plots/all_scatter_W.png}
+    \caption{Diagramas de dispersión: W vs RunDiff, ERA, HR y log(HR+1).}
+\end{figure}
+
+\textbf{W vs RunDiff} presenta la relación más fuerte y lineal: a mayor diferencial de carreras, más victorias, confirmando su validez como predictor central.  
+\textbf{W vs ERA} muestra una relación negativa clara: equipos con menor efectividad del pitcheo (ERA baja) ganan más.  
+\textbf{W vs HR} y \textbf{W vs logHR1} tienen asociación positiva pero más difusa; los cuadrangulares ayudan a ganar, aunque con variabilidad, lo cual lleva a explorar transformaciones.
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=0.75\textwidth]{../plots/scatter_HR_logHR1.png}
+    \caption{Relación funcional entre HR y log(HR+1).}
+\end{figure}
+
+La curva muestra que $\log(HR+1)$ suaviza el crecimiento de los HR. 
+Aunque en el rango 90-300 se mantiene casi lineal, la transformación previene que valores extremos dominen el ajuste del modelo, haciendo el análisis más robusto.
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=0.6\textwidth]{../plots/pie_ligas_colored.png}
+    \caption{Distribución de observaciones por liga (AL vs NL), 2000--2019.}
+\end{figure}
+
+El dataset está balanceado entre \textbf{NL} (52.2\%) y \textbf{AL} (47.8\%),y con esto se garantiza representatividad de ambas ligas, sin sesgos por desbalance en la muestra.
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=0.8\textwidth]{../plots/ts_W_NYA.png}
+    \caption{Serie de tiempo de victorias (ejemplo: NYA), 2000--2019.}
+\end{figure}
+
+Los Yankees de Nueva York (NYA) ilustran la variabilidad interanual en victorias. 
+Se observan picos de más de 100 triunfos en varias temporadas y caídas a la franja de 85-90 victorias en otras. 
+Este patrón muestra que incluso equipos consistentemente competitivos presentan fluctuaciones naturales, útiles para entender la estabilidad del modelo a lo largo del tiempo.
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\subsection{Identificación de valores atípicos:}
+
+El análisis mediante el método del rango intercuartílico (IQR) permitió identificar observaciones atípicas en varias variables:
+
+\begin{itemize}
+    \item \textbf{Victorias (W):} El caso más extremo corresponde a los Detroit Tigers en 2003, con solo 43 victorias, claramente fuera del rango intercuartílico (45--117). Esto refleja una de las peores campañas en la historia reciente de MLB.
+    \item \textbf{Jonrones (HR):} En 2019 se detectaron valores extraordinariamente altos en equipos como Minnesota Twins (307), New York Yankees (306), Houston Astros (288) y Los Angeles Dodgers (279), todos por encima del umbral superior (275.5). Esto coincide con el ``Año del jonrón''. en 2019, cuando se registró un récord colectivo histórico de cuadrangulares.
+    \item \textbf{Transformación log(HR+1):} Aunque la mayoría de observaciones están dentro del rango, aparecen valores bajos en equipos con ofensivas débiles como los San Diego Padres (2011) y San Francisco Giants (2008), lo que confirma que esta transformación ayuda a suavizar pero no elimina del todo los outliers.
+    \item \textbf{Carreras anotadas (R):} Se identifican equipos con valores extremos, por ejemplo, los Yankees (2007) y Rockies (2000) con más de 968 carreras, y los Marlins (2013) o Mariners (2010) con apenas 513, fuera del rango esperado (517--962).
+    \item \textbf{Juegos disputados (G):} Aunque la liga establece un calendario de 162 juegos, se detectan temporadas con 161 o 163 partidos, resultado de suspensiones o reprogramaciones (e.g., Cubs 2009, Rockies 2007, Rangers 2013).
+    \item \textbf{Derrotas (L):} Nuevamente destacan los Tigers de 2003, con 119 derrotas, simétrico al outlier en victorias.
+\end{itemize}
+
+Estos valores atípicos no necesariamente representan errores de medición, sino hechos históricos del béisbol (equipos en un muy bajo nivel, ofensivas históricas, o particularidades del calendario). Sin embargo, es importante tenerlos en cuenta porque pueden influir en el ajuste de los modelos de regresión, afectando los coeficientes e incrementando la dispersión residual.
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-%% TODO
 \section{Análisis de Correlación}
 \subsection{Correlación entre las variables:}
 Realizar un análisis de correlación para examinar las relaciones entre la variable dependiente y las variables independientes, utilizando el coeficiente de correlación de Pearson o Spearman según corresponda.
