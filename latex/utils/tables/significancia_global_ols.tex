@@ -1,0 +1,15 @@
+\begin{table}
+\caption{Significancia global por modelo (prueba F)}
+\label{tab:significancia_global_ols}
+\begin{tabular}{lllrrrrr}
+\toprule
+Modelo & Fórmula & gl (modelo,resid) & $F$ & $p(F)$ & $R^2$ & $R^2_{adj}$ & N \\
+\midrule
+Cuadrático: W ~ RunDiff + RunDiff^2 & W ~ RunDiff + I(RunDiff**2) & (2,597) & 2263.8564 & 0.0000 & 0.8835 & 0.8831 & 600 \\
+Lineal: W ~ RunDiff & W ~ RunDiff & (1,598) & 4498.4794 & 0.0000 & 0.8827 & 0.8825 & 600 \\
+Lineal: W ~ ERA & W ~ ERA & (1,598) & 450.3684 & 0.0000 & 0.4296 & 0.4286 & 600 \\
+Lineal: W ~ HR & W ~ HR & (1,598) & 108.5754 & 0.0000 & 0.1537 & 0.1522 & 600 \\
+Lineal: W ~ log(HR+1) & W ~ logHR1 & (1,598) & 107.3631 & 0.0000 & 0.1522 & 0.1508 & 600 \\
+\bottomrule
+\end{tabular}
+\end{table}

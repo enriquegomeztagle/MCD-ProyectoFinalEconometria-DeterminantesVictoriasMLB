@@ -1,0 +1,21 @@
+\begin{table}
+\caption{Pruebas de significancia: F global y t por coeficiente}
+\label{tab:significancia_ols}
+\begin{tabular}{lllrrlrrrrrrlrrr}
+\toprule
+Modelo & Fórmula & gl (modelo,resid) & $F$ & $p(F)$ & Término & $\beta$ & EE($\beta$) & $t$ & $p(t)$ & CI95\% inf & CI95\% sup & Signif. 5% & $R^2$ & $R^2_{adj}$ & N \\
+\midrule
+Lineal: W ~ RunDiff & W ~ RunDiff & (1,598) & 4498.4794 & 0.0000 & Intercept & 80.9700 & 0.1650 & 490.8379 & 0.0000 & 80.6460 & 81.2940 & Sí & 0.8827 & 0.8825 & 600 \\
+Lineal: W ~ RunDiff & W ~ RunDiff & (1,598) & 4498.4794 & 0.0000 & RunDiff & 0.0997 & 0.0015 & 67.0707 & 0.0000 & 0.0967 & 0.1026 & Sí & 0.8827 & 0.8825 & 600 \\
+Lineal: W ~ ERA & W ~ ERA & (1,598) & 450.3684 & 0.0000 & Intercept & 142.3221 & 2.9138 & 48.8446 & 0.0000 & 136.5996 & 148.0446 & Sí & 0.4296 & 0.4286 & 600 \\
+Lineal: W ~ ERA & W ~ ERA & (1,598) & 450.3684 & 0.0000 & ERA & -14.4426 & 0.6806 & -21.2219 & 0.0000 & -15.7791 & -13.1060 & Sí & 0.4296 & 0.4286 & 600 \\
+Lineal: W ~ HR & W ~ HR & (1,598) & 108.5754 & 0.0000 & Intercept & 59.2303 & 2.1329 & 27.7702 & 0.0000 & 55.0415 & 63.4191 & Sí & 0.1537 & 0.1522 & 600 \\
+Lineal: W ~ HR & W ~ HR & (1,598) & 108.5754 & 0.0000 & HR & 0.1253 & 0.0120 & 10.4200 & 0.0000 & 0.1017 & 0.1489 & Sí & 0.1537 & 0.1522 & 600 \\
+Lineal: W ~ log(HR+1) & W ~ logHR1 & (1,598) & 107.3631 & 0.0000 & Intercept & -29.3238 & 10.6537 & -2.7525 & 0.0061 & -50.2470 & -8.4006 & Sí & 0.1522 & 0.1508 & 600 \\
+Lineal: W ~ log(HR+1) & W ~ logHR1 & (1,598) & 107.3631 & 0.0000 & logHR1 & 21.4615 & 2.0712 & 10.3616 & 0.0000 & 17.3937 & 25.5292 & Sí & 0.1522 & 0.1508 & 600 \\
+Cuadrático: W ~ RunDiff + RunDiff^2 & W ~ RunDiff + I(RunDiff**2) & (2,597) & 2263.8564 & 0.0000 & Intercept & 81.2425 & 0.2104 & 386.1012 & 0.0000 & 80.8292 & 81.6557 & Sí & 0.8835 & 0.8831 & 600 \\
+Cuadrático: W ~ RunDiff + RunDiff^2 & W ~ RunDiff + I(RunDiff**2) & (2,597) & 2263.8564 & 0.0000 & RunDiff & 0.0994 & 0.0015 & 66.8554 & 0.0000 & 0.0965 & 0.1023 & Sí & 0.8835 & 0.8831 & 600 \\
+Cuadrático: W ~ RunDiff + RunDiff^2 & W ~ RunDiff + I(RunDiff**2) & (2,597) & 2263.8564 & 0.0000 & I(RunDiff ** 2) & -0.0000 & 0.0000 & -2.0767 & 0.0383 & -0.0000 & -0.0000 & Sí & 0.8835 & 0.8831 & 600 \\
+\bottomrule
+\end{tabular}
+\end{table}
