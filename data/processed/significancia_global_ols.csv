@@ -1,0 +1,6 @@
+Modelo,Fórmula,"gl (modelo,resid)",F global,p(F),R2,R2_adj,N
+Cuadrático: W ~ RunDiff + RunDiff^2,W ~ RunDiff + I(RunDiff**2),"(2,597)",2263.856358,0.000000,0.883506,0.883115,600
+Lineal: W ~ RunDiff,W ~ RunDiff,"(1,598)",4498.479416,0.000000,0.882664,0.882468,600
+Lineal: W ~ ERA,W ~ ERA,"(1,598)",450.368361,0.000000,0.429590,0.428636,600
+Lineal: W ~ HR,W ~ HR,"(1,598)",108.575442,0.000000,0.153664,0.152249,600
+Lineal: W ~ log(HR+1),W ~ logHR1,"(1,598)",107.363107,0.000000,0.152210,0.150792,600
