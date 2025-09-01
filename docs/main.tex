@@ -219,7 +219,7 @@ Se calculó el coeficiente de correlación de Pearson y Spearman entre el númer
 (RunDiff, ERA, HR y logHR1). Los resultados se resumen en la Tabla \ref{tab:corr_w_x} y en las Figuras 
 \ref{fig:heatmap_pearson}--\ref{fig:heatmap_spearman}.
 
-\input{../latex/utils/tables/corr_W_vs_X.tex}
+\input{../latex/tables/corr_W_vs_X.tex}
 
 \begin{figure}[H]
     \centering
@@ -258,7 +258,7 @@ Se ajustaron cuatro modelos de regresión lineal simple con \textbf{W} (victoria
 como variable dependiente y, por separado, como variables explicativas: \textbf{RunDiff}, \textbf{ERA}, \textbf{HR} y \textbf{\(\log(\text{HR}+1)\)}. 
 Los resultados completos se muestran en la Tabla~\ref{tab:ols_summary}:
 
-\input{../latex/utils/tables/ols_simple_summary.tex}
+\input{../latex/tables/ols_simple_summary.tex}
 
 \begin{figure}[H]
     \centering
@@ -308,7 +308,7 @@ Para cada predictor probamos una forma lineal y una alternativa no lineal:
 \end{enumerate}
 La comparación se basó en \(R^2\), \(R^2_{adj}\), AIC/BIC, RMSE in--sample y RMSE de validación cruzada (10-fold), además de diagnósticos Breusch-Pagan (heterocedasticidad) y RESET de Ramsey (no linealidades u omisiones).
 
-\input{../latex/utils/tables/formas_funcionales_summary.tex}
+\input{../latex/tables/formas_funcionales_summary.tex}
 
 \begin{figure}[H]\centering
     \includegraphics[width=\textwidth]{../plots/formas_funcionales_HR.png}
@@ -355,18 +355,38 @@ La comparación se basó en \(R^2\), \(R^2_{adj}\), AIC/BIC, RMSE in--sample y R
     \end{itemize}
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 \section{Evaluación del Modelo de Regresión}
+\subsection{Pruebas de significancia}
 \paragraph{Tablas de resultados.}
 A continuación se muestran (i) la significancia \emph{global} por modelo mediante la prueba \(F\), y (ii) la significancia 
 \emph{individual} de los coeficientes mediante pruebas \(t\) con intervalos de confianza al 95\%.
 
-\input{../latex/utils/tables/significancia_global_ols.tex}
+\input{../latex/tables/significancia_global_ols.tex}
 
-\input{../latex/utils/tables/significancia_ols.tex}
+\input{../latex/tables/significancia_ols.tex}
 
+De las tablas anteriores, se puede concluir que:
+\begin{itemize}
+    \item \textbf{Todos los modelos son globalmente significativos} (Tabla~\ref{tab:significancia_global_ols}):
+    \begin{itemize}
+        \item \(W \sim \text{RunDiff} + \text{RunDiff}^2\): \(F(2,597)=2263.86\), \(p<0.001\), \(R^2=0.8835\), \(R^2_{adj}=0.8831\).
+        \item \(W \sim \text{RunDiff}\): \(F(1,598)=4498.48\), \(p<0.001\), \(R^2=0.8827\).
+        \item \(W \sim \text{ERA}\): \(F(1,598)=450.37\), \(p<0.001\), \(R^2=0.4296\).
+        \item \(W \sim \text{HR}\) y \(W \sim \log(\text{HR}+1)\): \(F\approx 108\), \(p<0.001\), \(R^2\approx 0.153\).
+    \end{itemize}
 
+    \item \textbf{Significancia individual de coeficientes} (Tabla~\ref{tab:significancia_ols}):
+    \begin{itemize}
+        \item \(\text{RunDiff}\) en el modelo lineal: \(\hat\beta_1=0.0997\) (EE \(=0.0015\)), \(t=67.07\), \(p<0.001\), IC95\% \([0.0967,\,0.1026]\). 
+        \item \(\text{ERA}\): \(\hat\beta_1=-14.44\) (EE \(=0.68\)), \(t=-21.22\), \(p<0.001\), IC95\% \([-15.78,\,-13.11]\).
+        \item \(\text{HR}\): \(\hat\beta_1=0.1253\) (EE \(=0.0120\)), \(t=10.42\), \(p<0.001\), IC95\% \([0.1017,\,0.1489]\).
+        \item \(\log(\text{HR}+1)\): \(\hat\beta_1=21.46\) (EE \(=2.07\)), \(t=10.36\), \(p<0.001\), IC95\% \([17.39,\,25.53]\).
+        \item \textbf{Cuadrático} \(\text{RunDiff}^2\): \(\hat\beta_2=-2.2\times 10^{-5}\) (EE \(=1.1\times10^{-5}\)), \(t=-2.08\), \(p=0.038\), IC95\% \([-4.3\times10^{-5},\,-1.0\times10^{-6}]\). Aunque el efecto marginal es muy pequeño, es estadísticamente distinto de cero al 5\%.
+    \end{itemize}
+
+    El mejor ajuste lo ofrece \(\text{RunDiff}\) (y su versión cuadrática con ligera mejora), seguido por \(\text{ERA}\). Los modelos con \(\text{HR}\) o \(\log(\text{HR}+1)\) son significativos pero con \(R^2\) notablemente menor.
+\end{itemize}
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-%% TODO
 \section{Pronóstico}
 \subsection{Generación del pronóstico:}
 Usar el modelo ajustado para realizar predicciones de la variable dependiente.
