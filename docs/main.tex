@@ -8,12 +8,23 @@
 \usepackage{geometry}
 \geometry{letterpaper, margin=1in}
 \usepackage{graphicx}
-\usepackage{hyperref}
 \usepackage{float}
 \usepackage{colortbl}
 \usepackage{caption}
 \usepackage{booktabs}
-\usepackage{tabularx} 
+\usepackage{tabularx}
+\usepackage{microtype}
+\PassOptionsToPackage{hyphens}{url}
+\usepackage{hyperref}
+\hypersetup{
+    colorlinks=true,
+    breaklinks=true,
+    linkcolor=blue,
+    urlcolor=blue,
+    citecolor=blue
+}
+\Urlmuskip=0mu plus 1mu\relax
+\setlength{\emergencystretch}{3em}
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 \title{Universidad Panamericana \\ Maestría en Ciencia de Datos 
@@ -205,22 +216,7 @@ Se calculó el coeficiente de correlación de Pearson y Spearman entre el númer
 (RunDiff, ERA, HR y logHR1). Los resultados se resumen en la Tabla \ref{tab:corr_w_x} y en las Figuras 
 \ref{fig:heatmap_pearson}--\ref{fig:heatmap_spearman}.
 
-\begin{table}[H]
-    \centering
-    \caption{Correlación de W con variables explicativas}
-    \label{tab:corr_w_x}
-    \begin{tabular}{lrrrrr}
-    \toprule
-    Variable & Pearson r & p (Pearson) & Spearman $\rho$ & p (Spearman) & N \\
-    \midrule
-    RunDiff & 0.9395 & 0.0000 & 0.9398 & 0.0000 & 600 \\
-    HR & 0.3920 & 0.0000 & 0.3853 & 0.0000 & 600 \\
-    logHR1 & 0.3901 & 0.0000 & 0.3853 & 0.0000 & 600 \\
-    ERA & -0.6554 & 0.0000 & -0.6575 & 0.0000 & 600 \\
-    \bottomrule
-    \end{tabular}
-\end{table}
-    
+\input{../latex/utils/tables/corr_W_vs_X.tex}
 
 \begin{figure}[H]
     \centering
@@ -256,21 +252,14 @@ Tanto Pearson como Spearman producen resultados consistentes: RunDiff y ERA son 
 \subsection{Resultados y resumen de estimaciones}
 
 Se ajustaron cuatro modelos de regresión lineal simple con \textbf{W} (victorias por temporada) 
-como variable dependiente y, por separado, como variables explicativas: \textbf{RunDiff}, \textbf{ERA}, \textbf{HR} y \textbf{\(\log(\text{HR}+1)\)}. Los resultados completos se muestran en la Tabla~\ref{tab:ols_simples}:
+como variable dependiente y, por separado, como variables explicativas: \textbf{RunDiff}, \textbf{ERA}, \textbf{HR} y \textbf{\(\log(\text{HR}+1)\)}. 
+Los resultados completos se muestran en la Tabla~\ref{tab:ols_summary}:
 
-\begin{table}[H]
-    \centering
-    \begin{tabularx}{\textwidth}{l *{14}{X}}
-    \input{../data/processed/ols_simple_summary.tex}
-    \end{tabularx}
-    \caption{Resumen de regresiones simples}
-    \label{tab:ols_summary}
-\end{table}
-
+\input{../latex/utils/tables/ols_simple_summary.tex}
 \subsection{Interpretación de los resultados}
 
 \paragraph{W \(\sim\) RunDiff.}  
-El modelo presenta un ajuste sobresaliente: \(R^2=0.883\), con un error medio de apenas 4 juegos (RMSE \(=4.03\), MAE \(=3.21\)). El coeficiente estimado de 0.0997 implica que por cada 10 carreras de diferencia anotadas sobre el rival, un equipo gana en promedio una victoria adicional. El intercepto de 80.97 refleja que un equipo “neutral” (RunDiff=0) tiende a terminar con 81 victorias, lo cual coincide con el balance teórico de .500. Este es, con diferencia, el modelo más predictivo.
+Este modelo presenta un ajuste sobresaliente: \(R^2=0.883\), con un error medio de apenas 4 juegos (RMSE \(=4.03\), MAE \(=3.21\)). El coeficiente estimado de 0.0997 implica que por cada 10 carreras de diferencia anotadas sobre el rival, un equipo gana en promedio una victoria adicional. El intercepto de 80.97 refleja que un equipo “neutral” (RunDiff=0) tiende a terminar con 81 victorias, lo cual coincide con el balance teórico de .500. Este es, con diferencia, el modelo más predictivo.
 
 \paragraph{W \(\sim\) ERA.}  
 La relación entre la efectividad de los lanzadores y las victorias también es significativa (\(p<0.001\)), con una pendiente de -14.44: reducir en 1.00 la ERA equivale aproximadamente a 14 victorias adicionales. Aunque el ajuste es más modesto que con RunDiff (\(R^2=0.43\)), este modelo ofrece una visión valiosa del rol del pitcheo en el éxito global del equipo.
@@ -288,12 +277,11 @@ La transformación logarítmica produce resultados prácticamente idénticos a H
     \item \textbf{Modelo intermedio:} ERA es una métrica útil, con un ajuste razonable, que complementa la interpretación sabermétrica con una perspectiva puramente de pitcheo.
     \item \textbf{Modelos débiles:} HR y \(\log(HR+1)\) muestran asociaciones significativas pero débiles, explicando solo un 15\% de la variabilidad de W.
     \item \textbf{Pruebas de significancia:} En todos los casos, la prueba F global confirma que los modelos son estadísticamente significativos (\(p<0.001\)).
-    \item \textbf{Error de predicción:} Con RunDiff, el error típico es de 3–4 victorias por temporada; con ERA, sube a ~7–9; con HR, a casi 9–11. Esto cuantifica claramente la capacidad predictiva de cada variable.
+    \item \textbf{Error de predicción:} Con RunDiff, el error típico es de $\approx 3\text{--}4$ victorias por temporada; con ERA, sube a $\approx 7\text{--}9$; con HR, a casi $\approx 9\text{--}11$.
 \end{itemize}
 
-\noindent En resumen, el diferencial de carreras es, como anticipa la teoría sabermétrica, el mejor predictor de victorias. Sin embargo, ERA aporta información clave sobre la importancia del pitcheo, mientras que los jonrones reflejan solo una parte limitada de la ofensiva.
+\noindent Bajo este análisis, se puede concluir que el diferencial de carreras es el mejor predictor de victorias. Sin embargo, ERA aporta información clave sobre la importancia del pitcheo, mientras que los jonrones reflejan solo una parte limitada de la ofensiva.
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-%% TODO
 \section{Formas Funcionales}
 \subsection{Identificación de la forma funcional adecuada:}
 Dependiendo de la naturaleza de las variables, se puede considerar aplicar formas funcionales no lineales (por ejemplo, logarítmica, cuadrática, exponencial).
@@ -329,12 +317,12 @@ Resumir los resultados obtenidos del análisis de regresión, incluyendo la rela
 Si es aplicable, proporcionar recomendaciones basadas en los resultados del análisis de regresión.
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 \section{Bibliografía}
-Lahman Baseball Database -Society for American Baseball Research. (2025). Sabr.org. https://sabr.org/lahman-database/
+Lahman Baseball Database -Society for American Baseball Research. (2025). Sabr.org. \url{https://sabr.org/lahman-database/}
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 \section{Anexo}
 \subsection{Link al repositorio con código fuente y salidas correspondientes}
-\href{https://github.com/enriquegomeztagle/MCD-ProyectoFinalEconometria-DeterminantesVictoriasMLB}{https://github.com/enriquegomeztagle/MCD-ProyectoFinalEconometria-DeterminantesVictoriasMLB}
+\url{https://github.com/enriquegomeztagle/MCD-ProyectoFinalEconometria-DeterminantesVictoriasMLB}
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 \end{document}
