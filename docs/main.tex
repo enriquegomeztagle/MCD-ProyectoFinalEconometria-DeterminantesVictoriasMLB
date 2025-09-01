@@ -228,6 +228,8 @@ Se calculó el coeficiente de correlación de Pearson y Spearman entre el númer
     \label{fig:bar_abs_r}
 \end{figure}
 
+\subsection{Interpretación de los resultados}
+
 \begin{itemize}
     \item \textbf{RunDiff} presenta la correlación más fuerte con $W (r = 0.94, p < 0.001)$, lo que confirma que la diferencia de carreras es un predictor casi determinístico del número de victorias.
     \item \textbf{ERA} muestra una correlación negativa alta $(r = -0.66, p < 0.001)$. Esto indica que un menor promedio de carreras limpias permitidas (mejor pitcheo) está fuertemente asociado con más victorias.
@@ -388,22 +390,94 @@ De las tablas anteriores, se puede concluir que:
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 \section{Pronóstico}
-\subsection{Generación del pronóstico:}
-Usar el modelo ajustado para realizar predicciones de la variable dependiente.
+\subsection{Generación del pronóstico}
+Para evaluar la capacidad predictiva, dividimos el panel equipo-año en un \textit{split} temporal:
+\emph{entrenamiento} 2000–2016 (510 obs.) y \emph{prueba} 2017-2019 (90 obs.). Con base en la evidencia previa (mayor $R^2$, AIC/BIC y CV), el modelo usado para 
+pronosticar fue el de mejor desempeño dentro de las formas funcionales consideradas:
+\[
+\text{W} \;=\; \beta_0 \;+\; \beta_1\,\text{RunDiff}\;+\;\beta_2\,\text{RunDiff}^2,
+\]
+ajustado sólo con los datos de entrenamiento. Sobre el conjunto de prueba, el modelo alcanza
+RMSE \(=3.89\) y MAE \(=2.94\) (frente a RMSE \(=3.95\) y MAE \(=2.98\) del modelo lineal en \texttt{RunDiff}).
+La \autoref{fig:parity_test_best} muestra el \textit{parity plot} (observado vs.\ pronosticado) en prueba:
+los puntos se alinean alrededor de la diagonal, lo que refleja buen ajuste predictivo sin sesgos evidentes.
 
-\subsection{Intervalos de predicción:}
-Obtener intervalos de confianza o predicción para las futuras observaciones de la variable dependiente.
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=0.5\linewidth]{../plots/forecast_parity_test_best.png}
+    \caption{Parity plot (set de prueba) del mejor modelo: \( \text{W} \sim \text{RunDiff} + \text{RunDiff}^2 \).}
+    \label{fig:parity_test_best}
+\end{figure}
 
-\subsection{Evaluación del pronóstico:}
-Comparar las predicciones con los valores reales (si están disponibles) utilizando medidas de error como el MSE (Error Cuadrático Medio), RMSE (Raíz del MSE), y el MAE (Error Absoluto Medio).
+\subsection{Intervalos de predicción}
+Además del pronóstico puntual \(\hat{W}\), se calcularon:
+(i) el intervalo de confianza al 95\% para la media condicional \(E[W \mid \text{RunDiff}]\), y
+(ii) el intervalo de \emph{predicción} al 95\% para observacionesau futuras \(W^\ast\).
+La \autoref{fig:forecast_bands} ilustra ambas bandas sobre el set de prueba: la banda verde (IC de la media) es más estrecha, mientras que la banda naranja (intervalo de predicción) refleja la variabilidad individual.
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=.85\linewidth]{../plots/forecast_intervals_vs_rundiff_test.png}
+    \caption{Pronóstico en prueba con bandas de incertidumbre (IC 95\% de la media y predicción 95\%).}
+    \label{fig:forecast_bands}
+\end{figure}
+
+Como referencia, para valores representativos de \texttt{RunDiff} se obtuvieron los siguientes intervalos (en el set de prueba):
+
+\begin{center}
+    \begin{tabular}{rcccccc}
+        \toprule
+            RunDiff & $\hat{W}$ & IC\;95\% inf & IC\;95\% sup & Pred.\;95\% inf & Pred.\;95\% sup \\
+        \midrule
+            $-150$ & 65.69 & 65.04 & 66.35 & 57.69 & 73.69 \\
+            $-50$  & 76.06 & 75.60 & 76.52 & 68.08 & 84.05 \\
+            $0$    & 81.13 & 80.68 & 81.59 & 73.15 & 89.12 \\
+            $50$   & 86.13 & 85.69 & 86.57 & 78.14 & 94.11 \\
+            $150$  & 95.88 & 95.17 & 96.60 & 87.88 & 103.89 \\
+            $250$  & 105.33 & 103.63 & 107.03 & 97.18 & 113.49 \\
+        \bottomrule
+    \end{tabular}
+\end{center}
+Obsérvese que la amplitud típica del intervalo de predicción ronda 15-18 victorias, mientras que el IC de la media es mucho más estrecho $(\approx0.9-1.9)$, como se espera teóricamente.
+
+\subsection{Evaluación del pronóstico}
+El desempeño predictivo se comparó entre modelos usando métricas estándar sobre \emph{train} y \emph{test}.
+En prueba (2017–2019), los resultados fueron:
+\begin{itemize}
+    \item \textbf{Mejor modelo} \(W \sim \text{RunDiff} + \text{RunDiff}^2\): MSE \(=15.10\), RMSE \(=3.89\), MAE \(=2.94\).
+    \item \textbf{Lineal en RunDiff}: MSE \(=15.57\), RMSE \(=3.95\), MAE \(=2.98\).
+    \item \textbf{Lineal en ERA}: RMSE \(=9.14\), MAE \(=7.21\).
+    \item \textbf{Lineal en HR}: RMSE \(=12.88\), MAE \(=10.45\).
+\end{itemize}
+La mejora del término cuadrático frente al lineal en \texttt{RunDiff} es pequeña pero consistente
+y se acompaña de mejores AIC/BIC y validación cruzada. Además, \texttt{RunDiff} explica de forma sustantiva las victorias, y el modelo cuadrático aporta un 
+refinamiento marginal útil para pronóstico operativo.
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-%% TODO
 \section{Conclusiones}
-\subsection{Resumen de los hallazgos:}
-Resumir los resultados obtenidos del análisis de regresión, incluyendo la relación entre las variables y la efectividad del modelo.
+\subsection{Resumen de los hallazgos}
+El análisis confirma que la \textbf{diferencia de carreras} (\texttt{RunDiff}) es, con amplio margen, el mejor determinante de las victorias (\texttt{W}) a nivel equipo–año (2000–2019). En los modelos lineales simples, \texttt{RunDiff} explica cerca del \(\,88\%\) de la variación de \texttt{W} (\(R^2\approx0.883\)), con errores típicos de pronóstico en el orden de \(\,3\text{--}4\) victorias por temporada (RMSE \(\approx 4\)). La interpretación es directa: \(\hat\beta_1\approx 0.10\) implica que \(\,\Delta 10\) carreras en el diferencial se traducen, en promedio, en \(\,\approx 1\) victoria adicional, y el intercepto cercano a 81 victorias es coherente con un equipo ``neutral'' (\texttt{RunDiff}=0).
 
-\subsection{Recomendaciones:}
-Si es aplicable, proporcionar recomendaciones basadas en los resultados del análisis de regresión.
+La \textbf{efectividad del pitcheo} (ERA) exhibe una relación negativa y sustantiva con \texttt{W} (\(r\approx -0.66\); \(R^2\approx 0.43\)): reducir en una unidad la ERA se asocia con \(\,\approx 14\) victorias más. Aunque su poder explicativo es menor que el de \texttt{RunDiff}, ofrece evidencia clara del rol del pitcheo en el desempeño global.
+
+Los \textbf{jonrones} (HR) y su transformación \(\log(\text{HR}+1)\) muestran asociaciones positivas pero \textit{moderadas} (\(R^2\approx 0.15\)). En el rango observado (90–300 HR) la versión logarítmica no mejora de manera apreciable al modelo lineal, lo que sugiere que el conteo de HR, por sí solo, captura sólo un fragmento del aporte ofensivo a las victorias.
+
+En \textbf{formas funcionales}, un término cuadrático en \texttt{RunDiff} aporta una \textit{mejora pequeña pero consistente}: \(R^2\) y AIC/BIC mejoran levemente, el RMSE baja (\(\approx 4.03 \rightarrow 4.02\)) y el test RESET deja de ser significativo, lo que indica mejor especificación. En \texttt{ERA}, el término cuadrático no agrega valor y empeora marginalmente los criterios de información; para \texttt{HR}, la transformación logarítmica es prácticamente equivalente a la lineal.
+
+Para \textbf{pronóstico} con \textit{split} temporal (train 2000–2016, test 2017–2019), el modelo \(\,W \sim \text{RunDiff} + \text{RunDiff}^2\) logra \(\text{RMSE}_{\text{test}}\approx 3.89\) y \(\text{MAE}_{\text{test}}\approx 2.94\), superando ligeramente al modelo lineal en \texttt{RunDiff}. Las bandas de incertidumbre muestran que, aunque el IC de la media es estrecho, los \textbf{intervalos de predicción} son naturalmente más amplios (del orden de 15–18 victorias), reflejando la variabilidad individual de equipos y temporadas.
+
+\subsection{Recomendaciones}
+\begin{enumerate}
+    \item \textbf{Uso operativo del modelo.} Para pronósticos rápidos y explicables, emplear \(\,W \sim \text{RunDiff}\) como base; cuando se busque el mejor desempeño posible con mínima complejidad adicional, preferir \(\,W \sim \text{RunDiff} + \text{RunDiff}^2\) (mejora marginal pero consistente y mejor especificación).
+    \item \textbf{Comunicación de incertidumbre.} Reportar siempre los \textit{intervalos de predicción} junto con el pronóstico puntual (\(\hat{W}\)); el IC de la media no sustituye la amplitud de la incertidumbre a nivel de observación futura.
+    \item \textbf{Interpretación de ERA y HR.} Utilizar \texttt{ERA} como indicador complementario de diagnóstico (impacto del pitcheo) y evitar usar \texttt{HR} como único predictor de victorias; el poder explicativo de HR aislado es limitado.
+    \item \textbf{Tratamiento de atípicos.} No eliminar outliers históricos por defecto (p.\,ej., 2019 en HR o 2003 DET en W) y, si se requiere robustez adicional, contrastar con estimadores/intervalos robustos o winsorización como análisis de sensibilidad.
+    \item \textbf{Extensiones futuras.} 
+    \begin{itemize}
+        \item Pasar a \textbf{regresión múltiple} (p.\,ej., \texttt{RunDiff} + métricas ofensivas y de pitcheo adicionales) para descomponer mejor contribuciones y reducir sesgo por omisión.
+        \item Explorar \textbf{modelos de panel} con efectos fijos por franquicia/año para capturar heterogeneidades persistentes (manager, estadio, presupuesto).
+        \item Evaluar especificaciones con \textbf{heterocedasticidad robusta} y \textbf{validación temporal} (rolling-origin) para escenarios de predicción real.
+    \end{itemize}
+\end{enumerate}
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 \section{Bibliografía}
 Lahman Baseball Database -Society for American Baseball Research. (2025). Sabr.org. \url{https://sabr.org/lahman-database/}
