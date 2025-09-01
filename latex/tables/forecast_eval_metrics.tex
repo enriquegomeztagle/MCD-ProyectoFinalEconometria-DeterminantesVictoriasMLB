@@ -1,0 +1,18 @@
+\begin{table}
+\caption{Evaluación de pronóstico (train/test temporal)}
+\label{tab:forecast_eval}
+\begin{tabular}{llrrrr}
+\toprule
+Modelo & Partición & MSE & RMSE & MAE & N \\
+\midrule
+Best: W ~ RunDiff + I(RunDiff**2) & Train (2000–2016) & 16.375 & 4.047 & 3.244 & 510 \\
+Best: W ~ RunDiff + I(RunDiff**2) & Test (2017–2019) & 15.104 & 3.886 & 2.937 & 90 \\
+RunDiff (lineal) & Train (2000–2016) & 16.420 & 4.052 & 3.252 & 510 \\
+RunDiff (lineal) & Test (2017–2019) & 15.571 & 3.946 & 2.978 & 90 \\
+ERA (lineal) & Train (2000–2016) & 78.792 & 8.877 & 7.177 & 510 \\
+ERA (lineal) & Test (2017–2019) & 83.492 & 9.137 & 7.209 & 90 \\
+HR (lineal) & Train (2000–2016) & 109.491 & 10.464 & 8.630 & 510 \\
+HR (lineal) & Test (2017–2019) & 165.823 & 12.877 & 10.450 & 90 \\
+\bottomrule
+\end{tabular}
+\end{table}
