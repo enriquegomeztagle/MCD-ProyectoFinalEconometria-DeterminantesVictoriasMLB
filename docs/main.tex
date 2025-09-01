@@ -14,6 +14,7 @@
 \usepackage{booktabs}
 \usepackage{tabularx}
 \usepackage{microtype}
+\usepackage[hyphens]{url}
 \PassOptionsToPackage{hyphens}{url}
 \usepackage{hyperref}
 \hypersetup{
@@ -24,7 +25,7 @@
     citecolor=blue
 }
 \Urlmuskip=0mu plus 1mu\relax
-\setlength{\emergencystretch}{3em}
+\setlength{\emergencystretch}{6em}
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 \title{Universidad Panamericana \\ Maestría en Ciencia de Datos 
@@ -32,7 +33,9 @@
 Proyecto Final: Determinantes de Victorias en MLB
 }
 
-\author{Enrique Ulises Báez Gómez Tagle\\Luis Alejandro Guillén Alvarez\\Grupo2}
+\author{Enrique Ulises Báez Gómez Tagle
+    % \\Luis Alejandro Guillén Alvarez\\Grupo2
+}
 \date{\today}
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
@@ -141,7 +144,7 @@ Los histogramas confirman distribuciones aproximadamente simétricas en \textbf{
 \textbf{ERA} se concentra en torno a 4, reflejando diferencias moderadas en pitcheo. 
 \textbf{HR} se distribuye entre 100-300, y su transformación \textbf{logHR1} comprime los valores extremos, suavizando colas. 
 \textbf{R} y \textbf{RA} tienen formas parecidas, centradas cerca de 740, lo que refleja equilibrio ofensivo-defensivo en la liga. 
-\textbf{G} es casi una constante en 162, validando la homogeneidad del calendario.\\
+\textbf{G} es casi una constante en 162, validando la homogeneidad del calendario.
 
 \begin{figure}[H]
     \centering
@@ -296,13 +299,14 @@ La transformación logarítmica produce resultados prácticamente idénticos a H
 \noindent Bajo este análisis, se puede concluir que el diferencial de carreras es el mejor predictor de victorias. Sin embargo, ERA aporta información clave sobre la importancia del pitcheo, mientras que los jonrones reflejan solo una parte limitada de la ofensiva.
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 \section{Formas Funcionales}
-Para cada predictor probamos una forma lineal y una alternativa no lineal:\\
+Para cada predictor probamos una forma lineal y una alternativa no lineal:
+
 \begin{enumerate}
     \item \textbf{HR} vs.\ \(\log(\text{HR}+1)\); 
     \item \textbf{ERA} lineal vs.\ cuadrática \((\text{ERA}^2)\); 
     \item \textbf{RunDiff} lineal vs.\ cuadrática \((\text{RunDiff}^2)\).
 \end{enumerate}
-La comparación se basó en \(R^2\), \(R^2_{adj}\), AIC/BIC, RMSE in--sample y RMSE de validación cruzada (10-fold), además de diagnósticos Breusch--Pagan (heterocedasticidad) y RESET de Ramsey (no linealidades u omisiones).
+La comparación se basó en \(R^2\), \(R^2_{adj}\), AIC/BIC, RMSE in--sample y RMSE de validación cruzada (10-fold), además de diagnósticos Breusch-Pagan (heterocedasticidad) y RESET de Ramsey (no linealidades u omisiones).
 
 \input{../latex/utils/tables/formas_funcionales_summary.tex}
 
@@ -343,7 +347,7 @@ La comparación se basó en \(R^2\), \(R^2_{adj}\), AIC/BIC, RMSE in--sample y R
 
 \subsection{Validación del modelo transformado}
 
-    Con base en los resultados anteriores y en las Figuras~\ref{fig:ff_hr}--\ref{fig:ff_rundiff}, seleccionamos como especificaciones finales por predictor:
+    Con base en los resultados anteriores y en las Figuras~\ref{fig:ff_hr}\ref{fig:ff_era}--\ref{fig:ff_rundiff}, seleccionamos como especificaciones finales por predictor:
     \begin{itemize}
         \item \(W \sim \text{RunDiff} + \text{RunDiff}^2\) (mejor AIC y RESET no significativo).
         \item \(W \sim \text{ERA}\) (lineal; el término cuadrático no mejora).
@@ -351,8 +355,16 @@ La comparación se basó en \(R^2\), \(R^2_{adj}\), AIC/BIC, RMSE in--sample y R
     \end{itemize}
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 \section{Evaluación del Modelo de Regresión}
-\subsection{Pruebas de significancia:}
-Realizar las pruebas estadísticas necesarias para evaluar la significancia global del modelo (prueba \(F\)) y la significancia de cada coeficiente individual (pruebas \(t\)).
+\paragraph{Tablas de resultados.}
+A continuación se muestran (i) la significancia \emph{global} por modelo mediante la prueba \(F\), y (ii) la significancia 
+\emph{individual} de los coeficientes mediante pruebas \(t\) con intervalos de confianza al 95\%.
+
+\input{../latex/utils/tables/significancia_global_ols.tex}
+
+\input{../latex/utils/tables/significancia_ols.tex}
+
+
+
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %% TODO
 \section{Pronóstico}
