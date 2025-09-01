@@ -256,6 +256,19 @@ como variable dependiente y, por separado, como variables explicativas: \textbf{
 Los resultados completos se muestran en la Tabla~\ref{tab:ols_summary}:
 
 \input{../latex/utils/tables/ols_simple_summary.tex}
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=\textwidth]{../plots/ols_scatter_grid_RunDiff_ERA_HR.png}
+    \caption{Diagramas de dispersión: W vs RunDiff, ERA, HR y log(HR+1).}
+\end{figure}
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=\textwidth]{../plots/ols_resid_grid_RunDiff_ERA_HR.png}
+    \caption{Residuales vs valores ajustados: W vs RunDiff, ERA, HR y log(HR+1).}
+\end{figure}
+
 \subsection{Interpretación de los resultados}
 
 \paragraph{W \(\sim\) RunDiff.}  
@@ -283,16 +296,60 @@ La transformación logarítmica produce resultados prácticamente idénticos a H
 \noindent Bajo este análisis, se puede concluir que el diferencial de carreras es el mejor predictor de victorias. Sin embargo, ERA aporta información clave sobre la importancia del pitcheo, mientras que los jonrones reflejan solo una parte limitada de la ofensiva.
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 \section{Formas Funcionales}
-\subsection{Identificación de la forma funcional adecuada:}
-Dependiendo de la naturaleza de las variables, se puede considerar aplicar formas funcionales no lineales (por ejemplo, logarítmica, cuadrática, exponencial).
+Para cada predictor probamos una forma lineal y una alternativa no lineal:\\
+\begin{enumerate}
+    \item \textbf{HR} vs.\ \(\log(\text{HR}+1)\); 
+    \item \textbf{ERA} lineal vs.\ cuadrática \((\text{ERA}^2)\); 
+    \item \textbf{RunDiff} lineal vs.\ cuadrática \((\text{RunDiff}^2)\).
+\end{enumerate}
+La comparación se basó en \(R^2\), \(R^2_{adj}\), AIC/BIC, RMSE in--sample y RMSE de validación cruzada (10-fold), además de diagnósticos Breusch--Pagan (heterocedasticidad) y RESET de Ramsey (no linealidades u omisiones).
 
-\subsection{Transformaciones de las variables:}
-Si es necesario, aplicar transformaciones a las variables para mejorar el ajuste del modelo (por ejemplo, \( \ln(X) \), \( X^2 \), etc.).
+\input{../latex/utils/tables/formas_funcionales_summary.tex}
 
-\subsection{Validación del modelo transformado:}
-Volver a ajustar el modelo con las variables transformadas y comparar el ajuste con el modelo lineal original.
+\begin{figure}[H]\centering
+    \includegraphics[width=\textwidth]{../plots/formas_funcionales_HR.png}
+    \caption{HR: comparación lineal vs.\ \(\log(\text{HR}+1)\).}
+    \label{fig:ff_hr}
+\end{figure}
+
+\begin{figure}[H]\centering
+    \includegraphics[width=\textwidth]{../plots/formas_funcionales_ERA.png}
+    \caption{ERA: comparación lineal vs.\ cuadrática.}
+    \label{fig:ff_era}
+\end{figure}
+    
+    \begin{figure}[H]\centering
+    \includegraphics[width=\textwidth]{../plots/formas_funcionales_RunDiff.png}
+    \caption{RunDiff: comparación lineal vs.\ cuadrática.}
+    \label{fig:ff_rundiff}
+\end{figure}
+
+\subsection{Resultados e interpretación}
+
+    \paragraph{HR (\(W \sim HR\) vs.\ \(W \sim \log(\text{HR}+1)\)).}
+    Las métricas son prácticamente idénticas entre la forma lineal y la logarítmica: \(R^2 \approx 0.153\), RMSE \(\approx 10.84\) y AIC/BIC casi iguales. 
+    Ni el test RESET (p=0.59 para log y p=0.31 para lineal) ni Breusch--Pagan (p\(\approx 0.37{-}0.54\)) sugieren problemas de especificación u heterocedasticidad. 
+    \textit{Conclusión:} la transformación \(\log(\text{HR}+1)\) \textbf{no aporta mejora} sustantiva; mantenemos \textbf{HR lineal} como especificación base y usamos la versión logarítmica sólo como contraste funcional.
+
+    \paragraph{ERA (\(W \sim \text{ERA}\) vs.\ \(W \sim \text{ERA}+\text{ERA}^2\)).}
+    El término cuadrático no mejora el ajuste: \(R^2\) se mantiene (0.4296 vs.\ 0.4296), AIC/BIC \textit{empeoran} levemente con el cuadrático, y el RMSE-CV también es ligeramente mayor (8.92 vs.\ 8.90). 
+    RESET es significativo en ambas (p=0.0168 lineal; p=0.0047 cuadrática), por lo que la curvatura de segundo grado \textbf{no} corrige del todo la posible omisión de forma o variables. 
+    BP no detecta heterocedasticidad (p\(\approx 0.09{-}0.10\)). 
+    \textit{Conclusión:} \textbf{era suficiente la forma lineal} para ERA; incorporar \(\text{ERA}^2\) no justifica la mayor complejidad.
+
+    \paragraph{RunDiff (\(W \sim \text{RunDiff}\) vs.\ \(W \sim \text{RunDiff}+\text{RunDiff}^2\)).}
+    Aquí sí aparece una \textit{mejora pequeña pero consistente}: el \(R^2\) sube de 0.8827 a 0.8835, AIC baja (3380.44 \(\rightarrow\) 3378.12), RMSE disminuye (4.034 \(\rightarrow\) 4.020) y el RESET deja de ser significativo (p=0.0303 \(\rightarrow\) 0.193), lo que sugiere que el término cuadrático captura una leve curvatura. BP no señala heterocedasticidad. 
+    \textit{Conclusión:} \textbf{RunDiff cuadrático} ofrece el mejor compromiso (ligera mejora de ajuste y especificación más estable), aunque el \textit{gain} es modesto.
+
+\subsection{Validación del modelo transformado}
+
+    Con base en los resultados anteriores y en las Figuras~\ref{fig:ff_hr}--\ref{fig:ff_rundiff}, seleccionamos como especificaciones finales por predictor:
+    \begin{itemize}
+        \item \(W \sim \text{RunDiff} + \text{RunDiff}^2\) (mejor AIC y RESET no significativo).
+        \item \(W \sim \text{ERA}\) (lineal; el término cuadrático no mejora).
+        \item \(W \sim \text{HR}\) (lineal; la versión logarítmica es equivalente en ajuste).
+    \end{itemize}
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-%% TODO
 \section{Evaluación del Modelo de Regresión}
 \subsection{Pruebas de significancia:}
 Realizar las pruebas estadísticas necesarias para evaluar la significancia global del modelo (prueba \(F\)) y la significancia de cada coeficiente individual (pruebas \(t\)).
