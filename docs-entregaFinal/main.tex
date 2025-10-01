@@ -335,6 +335,45 @@ que se ajustó por Mínimos Cuadrados Ordinarios . Las siguientes figuras muestr
     \item \textbf{HR} aporta señal positiva pero de menor tamaño relativo; su significancia indica que, manteniendo constante RunDiff y ERA, el poder de bateo agrega información marginal.
 \end{itemize}
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\section{Validación de los Supuestos de la Regresión Múltiple}
+%
+\subsection{Linealidad}
+La linealidad global se evaluó mediante (i) gráficos exploratorios y de regresión parcial; ver Fig.~\ref{fig:partreg}) y (ii) pruebas formales. El test \textbf{Rainbow} no rechaza la especificación lineal (\emph{p}=0.334). El test \textbf{RESET de Ramsey} arroja \emph{p}=0.053, muy cercano al 5\%; esto sugiere cautela, pero no constituye evidencia concluyente para modificar la forma funcional. En conjunto, consideramos que la forma lineal es adecuada para los fines del estudio.
+
+\subsection{Independencia de los errores}
+La independencia se contrastó con el estadístico \textbf{Durbin--Watson}, que resultó en \(DW\approx1.79\). Este valor es cercano a 2 y no sugiere autocorrelación preocupante de primer orden en los residuos.
+
+\subsection{Homoscedasticidad}
+Se revisaron los \emph{residuales vs. valores ajustados} (Fig.~\ref{fig:resid_fitted}), sin patrones evidentes de abanico. Las pruebas \textbf{Breusch--Pagan} (\emph{p}=0.26) y \textbf{White} (\emph{p}=0.38) no rechazan la hipótesis nula de varianza constante. Concluimos que no hay evidencia estadística de heteroscedasticidad.
+
+\subsection{Normalidad de los residuos}
+La normalidad se verificó mediante \textbf{Shapiro--Wilk} (\emph{p}=0.20) y \textbf{Jarque--Bera} (\emph{p}=0.15), que no rechazan normalidad al 5\%. El \emph{QQ-plot} (Fig.~\ref{fig:qqplot}) muestra alineación razonable con la diagonal, con desvíos menores en colas.
+
+\subsection{Ausencia de multicolinealidad}
+Se calcularon los \textbf{VIF}: \texttt{RunDiff}\,$\approx$\,3.17, \texttt{ERA}\,$\approx$\,2.68 y \texttt{HR}\,$\approx$\,1.78, todos por debajo de 5, por lo que no hay multicolinealidad severa. El \textbf{número de condición} del diseño es \(\kappa\approx1{,}980\), lo que sugiere colinealidad \emph{moderada}. Esto es esperable porque las métricas de rendimiento de un equipo están naturalmente relacionadas entre sí; reportamos esta condición y procedemos con interpretación prudente.
+
+% Referencias a figuras de diagnóstico generadas por el script
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=.85\linewidth]{../plots/final_version/ols_partial_regression_grid.png}
+    \caption{Grilla de regresión parcial (added-variable).}
+    \label{fig:partreg}
+\end{figure}
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=.65\linewidth]{../plots/final_version/ols_residuals_vs_fitted.png}
+    \caption{Residuos vs. valores ajustados del modelo múltiple.}
+    \label{fig:resid_fitted}
+\end{figure}
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=.55\linewidth]{../plots/final_version/ols_residuals_qq.png}
+    \caption{QQ-plot de los residuos.}
+    \label{fig:qqplot}
+\end{figure}
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 \section{Pronóstico}
 \subsection{Generación del pronóstico}
 Para evaluar la capacidad predictiva, dividimos el panel equipo-año en un \textit{split} temporal:
