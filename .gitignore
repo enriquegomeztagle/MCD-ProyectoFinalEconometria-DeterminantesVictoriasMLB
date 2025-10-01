@@ -209,6 +209,7 @@ __marimo__/
 ########################## CUSTOM ##########################
 .DS_Store
 docs-primeraEntrega/*
+docs-entregaFinal/*
 # Exclude .tex and .pdf files
 !docs-primeraEntrega/*.tex
 !docs-primeraEntrega/*.pdf
