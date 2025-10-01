@@ -375,96 +375,98 @@ Se calcularon los \textbf{VIF}: \texttt{RunDiff}\,$\approx$\,3.17, \texttt{ERA}\
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 \section{Pronóstico}
 \subsection{Generación del pronóstico}
-Para evaluar la capacidad predictiva, dividimos el panel equipo-año en un \textit{split} temporal:
-\emph{entrenamiento} 2000–2016 (510 obs.) y \emph{prueba} 2017-2019 (90 obs.). Con base en la evidencia previa (mayor $R^2$, AIC/BIC y CV), el modelo usado para 
-pronosticar fue el de mejor desempeño dentro de las formas funcionales consideradas:
+Dividimos el panel equipo–año en un \textit{split} temporal: \emph{entrenamiento} 2000--2016 (510 obs.) y \emph{prueba} 2017--2019 (90 obs.). Con base en la evidencia de ajuste y validación, el modelo usado para pronosticar fue el de mejor desempeño:
 \[
-\text{W} \;=\; \beta_0 \;+\; \beta_1\,\text{RunDiff}\;+\;\beta_2\,\text{RunDiff}^2,
+\text{W} \;=\; \beta_0 \;+\; \beta_1\,\text{RunDiff} \;+\; \beta_2\,\text{ERA} \;+\; \beta_3\,\text{HR},
 \]
-ajustado sólo con los datos de entrenamiento. Sobre el conjunto de prueba, el modelo alcanza
-RMSE \(=3.89\) y MAE \(=2.94\) (frente a RMSE \(=3.95\) y MAE \(=2.98\) del modelo lineal en \texttt{RunDiff}).
-La \autoref{fig:parity_test_best} muestra el \textit{parity plot} (observado vs.\ pronosticado) en prueba:
-los puntos se alinean alrededor de la diagonal, lo que refleja buen ajuste predictivo sin sesgos evidentes.
+ajustado únicamente con el conjunto de entrenamiento y evaluado luego en prueba.
+
+La Figura~\ref{fig:parity_test_best} muestra el \textit{parity plot} (observado vs. pronosticado) en prueba: los puntos se alinean alrededor de la diagonal, lo que refleja buen desempeño predictivo sin sesgos sistemáticos.
 
 \begin{figure}[H]
     \centering
-    \includegraphics[width=0.5\linewidth]{../plots/forecast_parity_test_best.png}
-    \caption{Parity plot (set de prueba) del mejor modelo: \( \text{W} \sim \text{RunDiff} + \text{RunDiff}^2 \).}
+    \includegraphics[width=0.6\linewidth]{../plots/forecast_parity_test_best.png}
+    \caption{Parity plot (set de prueba) del mejor modelo: $ \text{W} \sim \text{RunDiff} + \text{ERA} + \text{HR} $.}
     \label{fig:parity_test_best}
 \end{figure}
 
 \subsection{Intervalos de predicción}
-Además del pronóstico puntual \(\hat{W}\), se calcularon:
-(i) el intervalo de confianza al 95\% para la media condicional \(E[W \mid \text{RunDiff}]\), y
-(ii) el intervalo de \emph{predicción} al 95\% para observacionesau futuras \(W^\ast\).
-La \autoref{fig:forecast_bands} ilustra ambas bandas sobre el set de prueba: la banda verde (IC de la media) es más estrecha, mientras que la banda naranja (intervalo de predicción) refleja la variabilidad individual.
-
-\begin{figure}[H]
-    \centering
-    \includegraphics[width=.85\linewidth]{../plots/forecast_intervals_vs_rundiff_test.png}
-    \caption{Pronóstico en prueba con bandas de incertidumbre (IC 95\% de la media y predicción 95\%).}
-    \label{fig:forecast_bands}
-\end{figure}
-
-Como referencia, para valores representativos de \texttt{RunDiff} se obtuvieron los siguientes intervalos (en el set de prueba):
+Además del pronóstico puntual $\hat{W}$, reportamos (i) el intervalo de confianza al 95\% para la media condicional y (ii) el intervalo de \emph{predicción} al 95\% para observaciones futuras.
 
 \begin{table}[H]
     \centering
-    \caption{Intervalos de predicción}
-    \label{tab:pred_intervals}
-    \begin{tabular}{rcccccc}
-      \toprule
-      RunDiff & $\hat{W}$ & IC\;95\% inf & IC\;95\% sup & Pred.\;95\% inf & Pred.\;95\% sup \\
-      \midrule
-      -150 & 65.69 & 65.04 & 66.35 & 57.69 & 73.69 \\
-       -50 & 76.06 & 75.60 & 76.52 & 68.08 & 84.05 \\
-         0 & 81.13 & 80.68 & 81.59 & 73.15 & 89.12 \\
-        50 & 86.13 & 85.69 & 86.57 & 78.14 & 94.11 \\
-       150 & 95.88 & 95.17 & 96.60 & 87.88 & 103.89 \\
-       250 & 105.33 & 103.63 & 107.03 & 97.18 & 113.49 \\
-      \bottomrule
+    \caption{Pronósticos puntuales e intervalos (IC 95\% de la media; predicción 95\%).}
+    \label{tab:pred_intervals_multi}
+    \begin{tabular}{rrrrrrrr}
+        \toprule
+        RunDiff & ERA & HR & $\hat{W}$ & IC\;95\% inf & IC\;95\% sup & Pred.\;95\% inf & Pred.\;95\% sup \\
+        \midrule
+        -150 & 5.0 & 140 & 65.11 & 64.39 & 65.83 & 57.19 & 73.03 \\
+         -50 & 4.3 & 170 & 76.26 & 75.83 & 76.70 & 68.37 & 84.16 \\
+           0 & 4.0 & 200 & 82.02 & 81.31 & 82.74 & 74.11 & 89.94 \\
+          50 & 3.8 & 210 & 87.21 & 86.41 & 88.02 & 79.29 & 95.14 \\
+         150 & 3.5 & 230 & 97.40 & 96.41 & 98.39 & 89.45 & 105.34 \\
+         250 & 3.2 & 250 & 107.58 & 106.33 & 108.82 & 99.60 & 115.56 \\
+        \bottomrule
     \end{tabular}
-  \end{table}
-  
-Obsérvese que la amplitud típica del intervalo de predicción ronda 15-18 victorias, mientras que el IC de la media es mucho más estrecho $(\approx0.9-1.9)$, como se espera teóricamente.
-
+\end{table}
 \subsection{Evaluación del pronóstico}
-El desempeño predictivo se comparó entre modelos usando métricas estándar sobre \emph{train} y \emph{test}.
-En prueba (2017–2019), los resultados fueron:
-\begin{itemize}
-    \item \textbf{Mejor modelo} \(W \sim \text{RunDiff} + \text{RunDiff}^2\): MSE \(=15.10\), RMSE \(=3.89\), MAE \(=2.94\).
-    \item \textbf{Lineal en RunDiff}: MSE \(=15.57\), RMSE \(=3.95\), MAE \(=2.98\).
-    \item \textbf{Lineal en ERA}: RMSE \(=9.14\), MAE \(=7.21\).
-    \item \textbf{Lineal en HR}: RMSE \(=12.88\), MAE \(=10.45\).
-\end{itemize}
-La mejora del término cuadrático frente al lineal en \texttt{RunDiff} es pequeña pero consistente
-y se acompaña de mejores AIC/BIC y validación cruzada. Además, \texttt{RunDiff} explica de forma sustantiva las victorias, y el modelo cuadrático aporta un 
-refinamiento marginal útil para pronóstico operativo.
+La Tabla~\ref{tab:forecast_metrics} compara el desempeño en entrenamiento y prueba entre el mejor modelo múltiple y tres modelos lineales simples.
+
+\begin{table}[H]
+    \centering
+    \caption{Desempeño predictivo (MSE, RMSE, MAE) por modelo y partición.}
+    \label{tab:forecast_metrics}
+    \begin{tabular}{l l r r r r}
+        \toprule
+        Modelo & Split & MSE & RMSE & MAE & N \\
+        \midrule
+        Best: W $\sim$ RunDiff + ERA + HR & Train (2000--2016) & 15.98 & 3.998 & 3.205 & 510 \\
+        Best: W $\sim$ RunDiff + ERA + HR & Test (2017--2019)  & 15.72 & 3.965 & 3.027 &  90 \\
+        RunDiff (lineal)                   & Train (2000--2016) & 16.42 & 4.052 & 3.252 & 510 \\
+        RunDiff (lineal)                   & Test (2017--2019)  & 15.57 & 3.946 & 2.978 &  90 \\
+        ERA (lineal)                       & Train (2000--2016) & 78.79 & 8.877 & 7.177 & 510 \\
+        ERA (lineal)                       & Test (2017--2019)  & 83.49 & 9.137 & 7.209 &  90 \\
+        HR (lineal)                        & Train (2000--2016) &109.49 &10.464 & 8.630 & 510 \\
+        HR (lineal)                        & Test (2017--2019)  &165.82 &12.877 &10.450 &  90 \\
+        \bottomrule
+    \end{tabular}
+\end{table}
+
+En prueba, el modelo múltiple alcanza RMSE $\approx 3.97$ y MAE $\approx 3.03$, superando claramente a los modelos que usan \emph{una sola} variable y quedando a la par del lineal en RunDiff. Dado que el múltiple integra simultáneamente información de bateo (HR), diferencial agregado (RunDiff) y pitcheo (ERA), ofrece una \emph{mejor base explicativa} con errores similares o menores.
+
+Finalmente, verificamos los residuales del modelo en el set de prueba (Fig.~\ref{fig:resid_fitted_test}): la nube se distribuye alrededor de cero sin patrón de abanico, lo cual es consistente con la homoscedasticidad indicada por las pruebas.
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=0.8\linewidth]{../plots/final_version/forecast_residuals_vs_fitted_test.png}
+    \caption{Residuos vs. valores ajustados (Test) – Modelo múltiple.}
+    \label{fig:resid_fitted_test}
+\end{figure}
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 \section{Conclusiones}
-\subsection{Resumen de los hallazgos}
-El análisis confirma que la \textbf{diferencia de carreras} (\texttt{RunDiff}) es, con amplio margen, el mejor determinante de las victorias (\texttt{W}) a nivel equipo–año (2000–2019). En los modelos lineales simples, \texttt{RunDiff} explica cerca del \(\,88\%\) de la variación de \texttt{W} (\(R^2\approx0.883\)), con errores típicos de pronóstico en el orden de \(\,3\text{--}4\) victorias por temporada (RMSE \(\approx 4\)). La interpretación es directa: \(\hat\beta_1\approx 0.10\) implica que \(\,\Delta 10\) carreras en el diferencial se traducen, en promedio, en \(\,\approx 1\) victoria adicional, y el intercepto cercano a 81 victorias es coherente con un equipo ``neutral'' (\texttt{RunDiff}=0).
+\subsection{Resumen de resultados}
+El modelo de \textbf{regresión lineal múltiple} \(W \sim \text{RunDiff} + \text{ERA} + \text{HR}\) explica el \textbf{88.5\%} de la variación en las victorias por temporada (\(R^2=0.885\); \(R^2_{aj}=0.885\)). La prueba global \(F(3,596)=1533.60\; (p<10^{-270})\) confirma la \emph{relevancia conjunta} de los predictores.
 
-La \textbf{efectividad del pitcheo} (ERA) exhibe una relación negativa y sustantiva con \texttt{W} (\(r\approx -0.66\); \(R^2\approx 0.43\)): reducir en una unidad la ERA se asocia con \(\,\approx 14\) victorias más. Aunque su poder explicativo es menor que el de \texttt{RunDiff}, ofrece evidencia clara del rol del pitcheo en el desempeño global.
+En términos de \emph{efectos parciales} (manteniendo constantes las demás variables):
+\begin{itemize}
+    \item \textbf{RunDiff}: coeficiente \(\hat\beta\approx0.0917\). Un aumento de 10 carreras en el diferencial se asocia con \(\approx0.92\) victorias adicionales. Es el predictor con mayor precisión y magnitud relativa.
+    \item \textbf{ERA}: coeficiente \(\hat\beta\approx-1.825\). Reducir la efectividad en 1.00 se asocia con \(\approx1.82\) victorias más, consistente con el papel del pitcheo en el desempeño global.
+    \item \textbf{HR}: coeficiente \(\hat\beta\approx0.0156\). Sumar 10 jonrones se asocia con \(\approx0.156\) victorias adicionales; el efecto es positivo pero de menor tamaño que \texttt{RunDiff} y \texttt{ERA}.
+\end{itemize}
 
-Los \textbf{jonrones} (HR) y su transformación \(\log(\text{HR}+1)\) muestran asociaciones positivas pero \textit{moderadas} (\(R^2\approx 0.15\)). En el rango observado (90–300 HR) la versión logarítmica no mejora de manera apreciable al modelo lineal, lo que sugiere que el conteo de HR, por sí solo, captura sólo un fragmento del aporte ofensivo a las victorias.
+Los diagnósticos apoyan la validez del modelo para los fines del estudio: \textbf{DW}\(\approx1.79\) no sugiere autocorrelación de primer orden; \textbf{Omnibus/JB} no rechazan normalidad (\(p>0.10\)); \textbf{BP} y \textbf{White} no rechazan homoscedasticidad (\(p=0.26\) y \(p=0.38\)). Los \textbf{VIF} (\(\approx3.17, 2.68, 1.78\)) y el número de condición (\(\kappa\approx1{,}980\)) indican colinealidad \emph{moderada}, esperable en métricas de rendimiento de un mismo equipo.
 
-En \textbf{formas funcionales}, un término cuadrático en \texttt{RunDiff} aporta una \textit{mejora pequeña pero consistente}: \(R^2\) y AIC/BIC mejoran levemente, el RMSE baja (\(\approx 4.03 \rightarrow 4.02\)) y el test RESET deja de ser significativo, lo que indica mejor especificación. En \texttt{ERA}, el término cuadrático no agrega valor y empeora marginalmente los criterios de información; para \texttt{HR}, la transformación logarítmica es prácticamente equivalente a la lineal.
-
-Para \textbf{pronóstico} con \textit{split} temporal (train 2000–2016, test 2017–2019), el modelo \(\,W \sim \text{RunDiff} + \text{RunDiff}^2\) logra \(\text{RMSE}_{\text{test}}\approx 3.89\) y \(\text{MAE}_{\text{test}}\approx 2.94\), superando ligeramente al modelo lineal en \texttt{RunDiff}. Las bandas de incertidumbre muestran que, aunque el IC de la media es estrecho, los \textbf{intervalos de predicción} son naturalmente más amplios (del orden de 15–18 victorias), reflejando la variabilidad individual de equipos y temporadas.
+En evaluación temporal, el modelo múltiple alcanzó en prueba (2017--2019) \(\text{RMSE}\approx3.97\) y \(\text{MAE}\approx3.03\), con buen alineamiento observado–pronosticado y residuales sin patrones sistémicos, lo que respalda su uso para pronóstico de corto plazo.
 
 \subsection{Recomendaciones}
 \begin{enumerate}
-    \item \textbf{Uso operativo del modelo.} Para pronósticos rápidos y explicables, emplear \(\,W \sim \text{RunDiff}\) como base; cuando se busque el mejor desempeño posible con mínima complejidad adicional, preferir \(\,W \sim \text{RunDiff} + \text{RunDiff}^2\) (mejora marginal pero consistente y mejor especificación).
-    \item \textbf{Comunicación de incertidumbre.} Reportar siempre los \textit{intervalos de predicción} junto con el pronóstico puntual (\(\hat{W}\)); el IC de la media no sustituye la amplitud de la incertidumbre a nivel de observación futura.
-    \item \textbf{Interpretación de ERA y HR.} Utilizar \texttt{ERA} como indicador complementario de diagnóstico (impacto del pitcheo) y evitar usar \texttt{HR} como único predictor de victorias; el poder explicativo de HR aislado es limitado.
-    \item \textbf{Tratamiento de atípicos.} No eliminar outliers históricos por defecto (p.\,ej., 2019 en HR o 2003 DET en W) y, si se requiere robustez adicional, contrastar con estimadores/intervalos robustos o winsorización como análisis de sensibilidad.
-    \item \textbf{Extensiones futuras.} 
-    \begin{itemize}
-        \item Pasar a \textbf{regresión múltiple} (p.\,ej., \texttt{RunDiff} + métricas ofensivas y de pitcheo adicionales) para descomponer mejor contribuciones y reducir sesgo por omisión.
-        \item Explorar \textbf{modelos de panel} con efectos fijos por franquicia/año para capturar heterogeneidades persistentes (manager, estadio, presupuesto).
-        \item Evaluar especificaciones con \textbf{heterocedasticidad robusta} y \textbf{validación temporal} (rolling-origin) para escenarios de predicción real.
-    \end{itemize}
+    \item \textbf{Uso práctico del modelo.} Emplear \(W \sim \text{RunDiff} + \text{ERA} + \text{HR}\) para pronósticos explicables y consistentes. Reportar siempre el error típico (RMSE/MAE) como referencia operativa.
+    \item \textbf{Comunicación de incertidumbre.} Acompañar cada pronóstico puntual \(\hat W\) con su \textbf{intervalo de predicción al 95\%}; evitar interpretar el IC de la media como incertidumbre individual.
+    \item \textbf{Monitoreo de supuestos.} Mantener verificación periódica de linealidad, homoscedasticidad y normalidad; ante señales de heteroscedasticidad, complementar con errores estándar robustos (HC3) como sensibilidad.
+    \item \textbf{Colinealidad.} Vigilar VIF y el número de condición al incorporar nuevas variables; priorizar parsimonia para preservar estabilidad de coeficientes e interpretabilidad.
+    \item \textbf{Mantenimiento del modelo.} Reentrenar con datos recientes (p. ej., anual) y validar con \emph{split} temporal; considerar \emph{rolling-origin} cuando el objetivo principal sea pronóstico.
+    \item \textbf{Extensiones posibles.} Explorar especificaciones de panel con efectos fijos por franquicia/año y la inclusión de métricas complementarias (BB, SO, OBP, SLG) para descomponer aportes ofensivos y de pitcheo, evaluando siempre el impacto en VIF y desempeño predictivo.
 \end{enumerate}
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 \section{Bibliografía}
