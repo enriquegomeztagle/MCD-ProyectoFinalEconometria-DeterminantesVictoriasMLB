@@ -263,142 +263,77 @@ Se calculó el coeficiente de correlación de Pearson y Spearman entre el númer
 
 Tanto Pearson como Spearman producen resultados consistentes: RunDiff y ERA son los predictores más fuertemente asociados con las victorias, mientras que los jonrones tienen un efecto más limitado. Esto anticipa que los modelos de regresión simple con RunDiff y ERA tendrán mayor poder explicativo que aquellos con HR.
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-\section{Modelo de Regresión Simple (3 modelos)}
-
-\subsection{Resultados y resumen de estimaciones}
-
-Se ajustaron cuatro modelos de regresión lineal simple con \textbf{W} (victorias por temporada) 
-como variable dependiente y, por separado, como variables explicativas: \textbf{RunDiff}, \textbf{ERA}, \textbf{HR} y \textbf{\(\log(\text{HR}+1)\)}. 
-Los resultados completos se muestran en la Tabla~\ref{tab:ols_summary}:
-
-\input{../latex/tables/ols_simple_summary.tex}
+\section{Modelo de Regresión Múltiple}
+\subsection{Especificación y ajuste}
+El modelo estimado es:
+\[
+W_i = \beta_0 + \beta_1\,\text{RunDiff}_i + \beta_2\,\text{ERA}_i + \beta_3\,\text{HR}_i + \varepsilon_i,
+\]
+que se ajustó por Mínimos Cuadrados Ordinarios . Las siguientes figuras muestran, a modo exploratorio, las relaciones con $W$ y los residuales del ajuste (para evaluar linealidad y patrones):
 
 \begin{figure}[H]
     \centering
     \includegraphics[width=\textwidth]{../plots/ols_scatter_grid_RunDiff_ERA_HR.png}
-    \caption{Diagramas de dispersión: W vs RunDiff, ERA, HR y log(HR+1).}
+    \caption{Diagramas de dispersión: W vs RunDiff, ERA y HR .}
 \end{figure}
 
 \begin{figure}[H]
     \centering
     \includegraphics[width=\textwidth]{../plots/ols_resid_grid_RunDiff_ERA_HR.png}
-    \caption{Residuales vs valores ajustados: W vs RunDiff, ERA, HR y log(HR+1).}
+    \caption{Residuales del modelo múltiple vs valores ajustados por predictor.}
 \end{figure}
 
-\subsection{Interpretación de los resultados}
+\subsection{Resultados y significancia de coeficientes}
+\begin{table}[H]
+    \centering
+    \caption{Modelo múltiple: $W \sim$ RunDiff + ERA + HR (coeficientes, $p$ e IC95\%)}
+    \label{tab:ols_multi_coefs}
+    \begin{tabular}{lrrrr}
+        \toprule
+        \textbf{Variable} & \textbf{$\hat\beta$} & \textbf{$p$-valor} & \textbf{IC95\% inf} & \textbf{IC95\% sup} \\
+        \midrule
+        Constante & 86.015950 & 0.000000 & 82.550769 & 89.481130 \\
+        RunDiff   & 0.091675  & 0.000000 & 0.086527  & 0.096823  \\
+        ERA       & -1.824850 & 0.000288 & -2.807436 & -0.842265 \\
+        HR        & 0.015600  & 0.008514 & 0.003994  & 0.027206  \\
+        \bottomrule
+    \end{tabular}
+\end{table}
 
-\paragraph{W \(\sim\) RunDiff.}  
-Este modelo presenta un ajuste sobresaliente: \(R^2=0.883\), con un error medio de apenas 4 juegos (RMSE \(=4.03\), MAE \(=3.21\)). El coeficiente estimado de 0.0997 implica que por cada 10 carreras de diferencia anotadas sobre el rival, un equipo gana en promedio una victoria adicional. El intercepto de 80.97 refleja que un equipo “neutral” (RunDiff=0) tiende a terminar con 81 victorias, lo cual coincide con el balance teórico de .500. Este es, con diferencia, el modelo más predictivo.
+\noindent \textbf{Interpretación de signos y magnitudes.} Manteniendo constantes las demás variables: (i) un incremento de 10 unidades en \texttt{RunDiff} se asocia con \(\approx 0.92\) victorias adicionales; (ii) reducir la \texttt{ERA} en 1.00 se asocia con \(\approx 1.82\) victorias más; (iii) sumar 10 jonrones (\texttt{HR}) se asocia con \(\approx 0.156\) victorias adicionales. Los tres coeficientes son estadísticamente significativos.
 
-\paragraph{W \(\sim\) ERA.}  
-La relación entre la efectividad de los lanzadores y las victorias también es significativa (\(p<0.001\)), con una pendiente de -14.44: reducir en 1.00 la ERA equivale aproximadamente a 14 victorias adicionales. Aunque el ajuste es más modesto que con RunDiff (\(R^2=0.43\)), este modelo ofrece una visión valiosa del rol del pitcheo en el éxito global del equipo.
+\subsection{Bondad de ajuste y pruebas globales}
+\begin{table}[H]
+    \centering
+    \caption{Estadísticos de ajuste y desempeño del modelo múltiple}
+    \label{tab:ols_multi_fit}
+    \begin{tabular}{lrr}
+        \toprule
+        Medida & Valor & $p$-valor \\
+        \midrule
+        $R^2$ & 0.885314 & \\
+        $R^2$ ajustado & 0.884737 & \\
+        Estadístico $F$ & 1533.603 & 0.000000 \\
+        AIC & 3370.731 & \\
+        BIC & 3388.319 & \\
+        Observaciones ($N$) & 600 & \\
+        RMSE & 3.988 & \\
+        MAE & 3.177 & \\
+        Durbin--Watson & 1.789 & \\
+        Omnibus (normalidad) & 4.013 & 0.134 \\
+        Jarque--Bera & 3.840 & 0.147 \\
+        \bottomrule
+    \end{tabular}
+\end{table}
 
-\paragraph{W \(\sim\) HR.}  
-Cada 10 jonrones se asocian con 1.25 victorias adicionales. Sin embargo, el poder explicativo es limitado (\(R^2=0.154\), RMSE=10.83). Esto refleja que, aunque los cuadrangulares ayudan, existen múltiples caminos ofensivos para anotar que no se capturan solo con HR.
+\noindent El modelo explica \textbf{88.5\%} de la variación en $W$ (\,$R^2=0.885$\,) con \,$R^2_{adj}=0.885$. La prueba $F(3,596)=1533.60$ es altamente significativa (\,$p<10^{-270}$\,), confirmando relevancia conjunta. Los errores medios de pronóstico in--sample son bajos (RMSE $\approx 3.99$, MAE $\approx 3.18$). Los diagnósticos básicos no rechazan normalidad de residuos (Omnibus/JB, $p>0.10$) y el estadístico Durbin--Watson $\approx 1.79$ no sugiere autocorrelación preocupante en este contexto. El número de condición reportado (\,$\approx 1.98\times10^3$\,) advierte posible \emph{multicolinealidad moderada}; por lo que se complementará con VIF en la sección de supuestos.
 
-\paragraph{W \(\sim \log(\text{HR}+1)\).}  
-La transformación logarítmica produce resultados prácticamente idénticos a HR lineal (\(R^2=0.152\), RMSE=10.84). Esto confirma lo observado en el análisis exploratorio: en el rango de 90–300 HR, la relación con victorias es casi lineal y la transformación no mejora el ajuste.
-
-\subsection{Evaluación de la bondad de ajuste}
-
+\subsection{Comentarios sobre los resultados}
 \begin{itemize}
-    \item \textbf{Mejor modelo:} RunDiff domina en todos los indicadores (\(R^2\), AIC, BIC, RMSE, MAE).
-    \item \textbf{Modelo intermedio:} ERA es una métrica útil, con un ajuste razonable, que complementa la interpretación sabermétrica con una perspectiva puramente de pitcheo.
-    \item \textbf{Modelos débiles:} HR y \(\log(HR+1)\) muestran asociaciones significativas pero débiles, explicando solo un 15\% de la variabilidad de W.
-    \item \textbf{Pruebas de significancia:} En todos los casos, la prueba F global confirma que los modelos son estadísticamente significativos (\(p<0.001\)).
-    \item \textbf{Error de predicción:} Con RunDiff, el error típico es de $\approx 3\text{--}4$ victorias por temporada; con ERA, sube a $\approx 7\text{--}9$; con HR, a casi $\approx 9\text{--}11$.
+    \item \textbf{RunDiff} es el predictor dominante en magnitud y precisión, consistente con la teoría sabermétrica: resume balance ofensivo--defensivo.
+    \item \textbf{ERA} conserva un efecto negativo y significativo una vez controlado RunDiff y HR: mejor pitcheo, más victorias.
+    \item \textbf{HR} aporta señal positiva pero de menor tamaño relativo; su significancia indica que, manteniendo constante RunDiff y ERA, el poder de bateo agrega información marginal.
 \end{itemize}
-
-\noindent Bajo este análisis, se puede concluir que el diferencial de carreras es el mejor predictor de victorias. Sin embargo, ERA aporta información clave sobre la importancia del pitcheo, mientras que los jonrones reflejan solo una parte limitada de la ofensiva.
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-\section{Formas Funcionales}
-Para cada predictor probamos una forma lineal y una alternativa no lineal:
-
-\begin{enumerate}
-    \item \textbf{HR} vs.\ \(\log(\text{HR}+1)\); 
-    \item \textbf{ERA} lineal vs.\ cuadrática \((\text{ERA}^2)\); 
-    \item \textbf{RunDiff} lineal vs.\ cuadrática \((\text{RunDiff}^2)\).
-\end{enumerate}
-La comparación se basó en \(R^2\), \(R^2_{adj}\), AIC/BIC, RMSE in--sample y RMSE de validación cruzada (10-fold), además de diagnósticos Breusch-Pagan (heterocedasticidad) y RESET de Ramsey (no linealidades u omisiones).
-
-\input{../latex/tables/formas_funcionales_summary.tex}
-
-\begin{figure}[H]\centering
-    \includegraphics[width=\textwidth]{../plots/formas_funcionales_HR.png}
-    \caption{HR: comparación lineal vs.\ \(\log(\text{HR}+1)\).}
-    \label{fig:ff_hr}
-\end{figure}
-
-\begin{figure}[H]\centering
-    \includegraphics[width=\textwidth]{../plots/formas_funcionales_ERA.png}
-    \caption{ERA: comparación lineal vs.\ cuadrática.}
-    \label{fig:ff_era}
-\end{figure}
-    
-    \begin{figure}[H]\centering
-    \includegraphics[width=\textwidth]{../plots/formas_funcionales_RunDiff.png}
-    \caption{RunDiff: comparación lineal vs.\ cuadrática.}
-    \label{fig:ff_rundiff}
-\end{figure}
-
-\subsection{Resultados e interpretación}
-
-    \paragraph{HR (\(W \sim HR\) vs.\ \(W \sim \log(\text{HR}+1)\)).}
-    Las métricas son prácticamente idénticas entre la forma lineal y la logarítmica: \(R^2 \approx 0.153\), RMSE \(\approx 10.84\) y AIC/BIC casi iguales. 
-    Ni el test RESET (p=0.59 para log y p=0.31 para lineal) ni Breusch--Pagan (p\(\approx 0.37{-}0.54\)) sugieren problemas de especificación u heterocedasticidad. 
-    \textit{Conclusión:} la transformación \(\log(\text{HR}+1)\) \textbf{no aporta mejora} sustantiva; mantenemos \textbf{HR lineal} como especificación base y usamos la versión logarítmica sólo como contraste funcional.
-
-    \paragraph{ERA (\(W \sim \text{ERA}\) vs.\ \(W \sim \text{ERA}+\text{ERA}^2\)).}
-    El término cuadrático no mejora el ajuste: \(R^2\) se mantiene (0.4296 vs.\ 0.4296), AIC/BIC \textit{empeoran} levemente con el cuadrático, y el RMSE-CV también es ligeramente mayor (8.92 vs.\ 8.90). 
-    RESET es significativo en ambas (p=0.0168 lineal; p=0.0047 cuadrática), por lo que la curvatura de segundo grado \textbf{no} corrige del todo la posible omisión de forma o variables. 
-    BP no detecta heterocedasticidad (p\(\approx 0.09{-}0.10\)). 
-    \textit{Conclusión:} \textbf{era suficiente la forma lineal} para ERA; incorporar \(\text{ERA}^2\) no justifica la mayor complejidad.
-
-    \paragraph{RunDiff (\(W \sim \text{RunDiff}\) vs.\ \(W \sim \text{RunDiff}+\text{RunDiff}^2\)).}
-    Aquí sí aparece una \textit{mejora pequeña pero consistente}: el \(R^2\) sube de 0.8827 a 0.8835, AIC baja (3380.44 \(\rightarrow\) 3378.12), RMSE disminuye (4.034 \(\rightarrow\) 4.020) y el RESET deja de ser significativo (p=0.0303 \(\rightarrow\) 0.193), lo que sugiere que el término cuadrático captura una leve curvatura. BP no señala heterocedasticidad. 
-    \textit{Conclusión:} \textbf{RunDiff cuadrático} ofrece el mejor compromiso (ligera mejora de ajuste y especificación más estable), aunque el \textit{gain} es modesto.
-
-\subsection{Validación del modelo transformado}
-
-    Con base en los resultados anteriores y en las Figuras~\ref{fig:ff_hr}\ref{fig:ff_era}--\ref{fig:ff_rundiff}, seleccionamos como especificaciones finales por predictor:
-    \begin{itemize}
-        \item \(W \sim \text{RunDiff} + \text{RunDiff}^2\) (mejor AIC y RESET no significativo).
-        \item \(W \sim \text{ERA}\) (lineal; el término cuadrático no mejora).
-        \item \(W \sim \text{HR}\) (lineal; la versión logarítmica es equivalente en ajuste).
-    \end{itemize}
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-\section{Evaluación del Modelo de Regresión}
-\subsection{Pruebas de significancia}
-\paragraph{Tablas de resultados.}
-A continuación se muestran (i) la significancia \emph{global} por modelo mediante la prueba \(F\), y (ii) la significancia 
-\emph{individual} de los coeficientes mediante pruebas \(t\) con intervalos de confianza al 95\%.
-
-\input{../latex/tables/significancia_global_ols.tex}
-
-\input{../latex/tables/significancia_ols.tex}
-
-De las tablas anteriores, se puede concluir que:
-\begin{itemize}
-    \item \textbf{Todos los modelos son globalmente significativos} (Tabla~\ref{tab:significancia_global_ols}):
-    \begin{itemize}
-        \item \(W \sim \text{RunDiff} + \text{RunDiff}^2\): \(F(2,597)=2263.86\), \(p<0.001\), \(R^2=0.8835\), \(R^2_{adj}=0.8831\).
-        \item \(W \sim \text{RunDiff}\): \(F(1,598)=4498.48\), \(p<0.001\), \(R^2=0.8827\).
-        \item \(W \sim \text{ERA}\): \(F(1,598)=450.37\), \(p<0.001\), \(R^2=0.4296\).
-        \item \(W \sim \text{HR}\) y \(W \sim \log(\text{HR}+1)\): \(F\approx 108\), \(p<0.001\), \(R^2\approx 0.153\).
-    \end{itemize}
-
-    \item \textbf{Significancia individual de coeficientes} (Tabla~\ref{tab:significancia_ols}):
-    \begin{itemize}
-        \item \(\text{RunDiff}\) en el modelo lineal: \(\hat\beta_1=0.0997\) (EE \(=0.0015\)), \(t=67.07\), \(p<0.001\), IC95\% \([0.0967,\,0.1026]\). 
-        \item \(\text{ERA}\): \(\hat\beta_1=-14.44\) (EE \(=0.68\)), \(t=-21.22\), \(p<0.001\), IC95\% \([-15.78,\,-13.11]\).
-        \item \(\text{HR}\): \(\hat\beta_1=0.1253\) (EE \(=0.0120\)), \(t=10.42\), \(p<0.001\), IC95\% \([0.1017,\,0.1489]\).
-        \item \(\log(\text{HR}+1)\): \(\hat\beta_1=21.46\) (EE \(=2.07\)), \(t=10.36\), \(p<0.001\), IC95\% \([17.39,\,25.53]\).
-        \item \textbf{Cuadrático} \(\text{RunDiff}^2\): \(\hat\beta_2=-2.2\times 10^{-5}\) (EE \(=1.1\times10^{-5}\)), \(t=-2.08\), \(p=0.038\), IC95\% \([-4.3\times10^{-5},\,-1.0\times10^{-6}]\). Aunque el efecto marginal es muy pequeño, es estadísticamente distinto de cero al 5\%.
-    \end{itemize}
-
-    El mejor ajuste lo ofrece \(\text{RunDiff}\) (y su versión cuadrática con ligera mejora), seguido por \(\text{ERA}\). Los modelos con \(\text{HR}\) o \(\log(\text{HR}+1)\) son significativos pero con \(R^2\) notablemente menor.
-\end{itemize}
-
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 \section{Pronóstico}
 \subsection{Generación del pronóstico}
