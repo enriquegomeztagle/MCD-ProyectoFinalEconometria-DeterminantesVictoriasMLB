@@ -73,9 +73,9 @@ donde $X_{1},X_{2},X_{3}$ representan predictores de desempeño ofensivo y defen
 \subsection{Justificación:}
 Se adopta una especificación \textbf{múltiple} porque permite estimar el efecto \emph{parcial} de cada variable sobre $W$ controlando por las demás, reduciendo el sesgo por omisión inherente a modelos univariados. En particular:
 \begin{itemize}
-    \item \textbf{Diferencia de carreras (RunDiff = R - RA):} resume el balance ofensivo--defensivo; se espera $\beta>0$.
-    \item \textbf{ERA (Earned Run Average):} proxy de la calidad del pitcheo; se espera $\beta<0$ (menor ERA $\Rightarrow$ más victorias).
-    \item \textbf{Jonrones (HR):} aproximación al poder de bateo; se espera $\beta>0$.
+    \item \textbf{Diferencia de carreras (RunDiff = R - RA):} refleja la solidez ofensiva y defensiva combinada; se espera una relación positiva con las victorias.
+    \item \textbf{ERA (Earned Run Average):} mide la calidad del pitcheo, donde un menor valor debería asociarse con más victorias (relación negativa).
+    \item \textbf{Jonrones (HR):} indicador clave del poder ofensivo; se espera una relación positiva con las victorias.
 \end{itemize}
 Este enfoque permite comparar la \emph{relevancia relativa} de los predictores (magnitud y significancia), mejorar el desempeño predictivo frente a especificaciones simples y verificar rigurosamente los supuestos del modelo (linealidad conjunta, independencia, homoscedasticidad, normalidad de residuos), además de diagnosticar \emph{multicolinealidad} mediante VIF.
 %
@@ -93,7 +93,7 @@ El dataset maestro conserva las siguientes variables principales:
     \item Variables derivadas: \texttt{RunDiff = R - RA}, \texttt{logHR1 = ln(HR+1)}.
 \end{itemize}
 
-El dataset es de tipo corte transversal en panel (equipo-año), con una observación por equipo por temporada, con esto es posible aplicar los modelos de regresión simple y realizar análisis descriptivos y de correlación.
+El dataset es de tipo panel (equipo–año), con una observación por equipo por temporada; con esto es posible ajustar y evaluar un modelo de regresión múltiple, además de realizar análisis descriptivos y de correlación.
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 \section{Selección de Variables}
@@ -101,12 +101,13 @@ El dataset es de tipo corte transversal en panel (equipo-año), con una observac
 La variable dependiente seleccionada es el número de \textbf{victorias (W)} que obtiene cada equipo de las Grandes Ligas de Béisbol (MLB) en una temporada regular. Esta variable representa de manera directa el desempeño global de un equipo, ya que ganar más partidos es el objetivo principal dentro de una temporada. A partir de ella se busca explicar qué factores de rendimiento ofensivo y defensivo tienen mayor influencia en el éxito deportivo.
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 \subsection{Variables independientes:}
-Para el análisis de regresión simple se seleccionaron tres variables distintas, cada una analizada en un modelo separado:%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+Para el análisis de regresión múltiple se consideran, de forma simultánea, tres variables explicativas:
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
 \begin{itemize}
     \item \textbf{Diferencia de carreras (RunDiff = R - RA):} mide la diferencia entre las carreras anotadas (\texttt{R}) y las carreras permitidas (\texttt{RA}). Es un indicador directo del dominio de un equipo sobre sus rivales; se espera que un mayor diferencial de carreras se traduzca en un mayor número de victorias (\(\beta > 0\)). 
     \item \textbf{ERA (Earned Run Average):} representa el promedio de carreras limpias permitidas por cada nueve entradas lanzadas. Es una métrica clave de la calidad del pitcheo: un valor más bajo de ERA refleja un mejor desempeño de los lanzadores y, por lo tanto, debería estar negativamente correlacionado con las derrotas y positivamente con las victorias (\(\beta < 0\)). 
-    \item \textbf{Jonrones (HR):} corresponde al número total de cuadrangulares conectados por un equipo en una temporada. Dado que los jonrones aportan carreras directas, se espera que tengan una relación positiva con las victorias (\(\beta > 0\)). Además, se incluirá una transformación funcional \(\log(HR+1)\) para evaluar si la relación entre jonrones y victorias presenta un comportamiento no lineal, suavizando el efecto de valores extremos.
+    \item \textbf{Jonrones (HR):} corresponde al número total de cuadrangulares conectados por un equipo en una temporada. Dado que los jonrones aportan carreras directas, se espera que tengan una relación positiva con las victorias (\(\beta > 0\)).
 \end{itemize}
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
