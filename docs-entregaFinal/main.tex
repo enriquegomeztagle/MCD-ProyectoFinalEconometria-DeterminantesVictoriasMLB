@@ -1,0 +1,517 @@
+\documentclass[man,floatsintext]{apa7}
+% ---- Codificación y lenguaje ----
+\usepackage[T1]{fontenc}
+\usepackage[utf8]{inputenc}
+\usepackage[spanish]{babel}
+\decimalpoint
+
+% ---- Citas y bibliografía (biblatex + APA) ----
+\usepackage{csquotes}
+\usepackage[style=apa,sortcites=true,sorting=nyt,backend=biber]{biblatex}
+\DeclareLanguageMapping{spanish}{spanish-apa}
+
+% ---- Matemáticas y utilidades ----
+\usepackage{amsmath, amssymb}
+\usepackage{xcolor}
+\usepackage{colortbl}
+\usepackage{geometry}
+\geometry{letterpaper, margin=1in}
+\usepackage{graphicx}
+\usepackage{float}
+\usepackage{caption}
+\usepackage{booktabs}
+\usepackage{tabularx}
+\usepackage{microtype}
+% ---- Hipervínculos ----
+\usepackage{hyperref}
+\hypersetup{
+    colorlinks=true,
+    breaklinks=true,
+    linkcolor=blue,
+    urlcolor=blue,
+    citecolor=blue
+}
+\Urlmuskip=0mu plus 1mu\relax
+\setlength{\emergencystretch}{6em}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\title{Universidad Panamericana\\ 
+Maestría en Ciencia de Datos\\ 
+Econometría\\ \vspace{0.5cm} 
+Proyecto Final: Determinantes de Victorias en MLB
+}
+\shorttitle{Determinantes de Victorias en MLB}
+\author{Enrique Ulises Báez Gómez Tagle,
+    Luis Alejandro Guillén Alvarez\\
+    Grupo 2
+}
+\affiliation{Universidad Panamericana}
+\date{\today}
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\begin{document}
+
+\maketitle
+
+\tableofcontents
+
+\newpage
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\section{Introducción}
+% 
+\subsection{Objetivo del trabajo:}
+El propósito de este trabajo es aplicar un análisis de \textbf{regresión lineal múltiple} para explicar y pronosticar el número de \textbf{victorias (W)} de un equipo de Grandes Ligas en una temporada a partir de \emph{múltiples} variables explicativas consideradas de forma \emph{simultánea}. El modelo tendrá la forma general
+\[
+W_i=\beta_0+\beta_1 X_{1i}+\beta_2 X_{2i}+\beta_3 X_{3i}+\varepsilon_i,
+\]
+donde $X_{1},X_{2},X_{3}$ representan predictores de desempeño ofensivo y defensivo (\texttt{RunDiff}, \texttt{ERA}, \texttt{HR}). Los objetivos específicos son: (i) cuantificar los \emph{efectos marginales} de cada predictor sobre $W$; (ii) evaluar su significancia estadística y la bondad de ajuste del modelo; y (iii) generar pronósticos con intervalos de predicción para nuevas observaciones.
+%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%
+\subsection{Justificación:}
+Se adopta una especificación \textbf{múltiple} porque permite estimar el efecto \emph{parcial} de cada variable sobre $W$ controlando por las demás, reduciendo el sesgo por omisión inherente a modelos univariados. En particular:
+\begin{itemize}
+    \item \textbf{Diferencia de carreras (RunDiff = R - RA):} resume el balance ofensivo--defensivo; se espera $\beta>0$.
+    \item \textbf{ERA (Earned Run Average):} proxy de la calidad del pitcheo; se espera $\beta<0$ (menor ERA $\Rightarrow$ más victorias).
+    \item \textbf{Jonrones (HR):} aproximación al poder de bateo; se espera $\beta>0$.
+\end{itemize}
+Este enfoque permite comparar la \emph{relevancia relativa} de los predictores (magnitud y significancia), mejorar el desempeño predictivo frente a especificaciones simples y verificar rigurosamente los supuestos del modelo (linealidad conjunta, independencia, homoscedasticidad, normalidad de residuos), además de diagnosticar \emph{multicolinealidad} mediante VIF.
+%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\subsection{Descripción de los datos:}
+Se utiliza la Base de Datos de Béisbol de Lahman 1871-2024, publicada por la Society for American Baseball Research (SABR) con datos recopilados por Sean Lahman. La base está disponible en formato CSV, y específicamente se emplea el archivo \texttt{Teams.csv}, que contiene estadísticas anuales de desempeño de cada equipo de Grandes Ligas . 
+
+El archivo original incluye 48 columnas y 3075 observaciones, correspondientes a temporadas desde 1871 hasta 2024. Sin embargo, para este trabajo se decidió filtrar únicamente los equipos de las ligas Americana (AL) y Nacional (NL), ya que representan las ligas principales de las Grandes Ligas de Béisbol y permiten obtener datos más homogéneos en términos de reglas y estructura competitiva. Asimismo, se seleccionó el periodo 2000-2019 porque corresponde a una etapa reciente del béisbol moderno, con un calendario estable de 162 juegos por temporada y sin las distorsiones que generó la temporada 2020 por la pandemia de COVID-19. Con este filtro se obtuvieron 600 observaciones (30 equipos por temporada durante 20 años), lo cual asegura un tamaño de muestra suficiente para aplicar análisis con validez estadística.
+
+El dataset maestro conserva las siguientes variables principales:
+\begin{itemize}
+    \item Identificadores: \texttt{yearID}, \texttt{lgID}, \texttt{teamID}, \texttt{franchID}, \texttt{name}, \texttt{team\_year}, \texttt{season\_date}.
+    \item Resultados: \texttt{W} (victorias), \texttt{L} (derrotas), \texttt{G} (juegos jugados).
+    \item Estadísticas de desempeño: \texttt{R} (carreras anotadas), \texttt{RA} (carreras permitidas), \texttt{ERA} (efectividad), \texttt{HR} (jonrones).
+    \item Variables derivadas: \texttt{RunDiff = R - RA}, \texttt{logHR1 = ln(HR+1)}.
+\end{itemize}
+
+El dataset es de tipo corte transversal en panel (equipo-año), con una observación por equipo por temporada, con esto es posible aplicar los modelos de regresión simple y realizar análisis descriptivos y de correlación.
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\section{Selección de Variables}
+\subsection{Variable dependiente:}
+La variable dependiente seleccionada es el número de \textbf{victorias (W)} que obtiene cada equipo de las Grandes Ligas de Béisbol (MLB) en una temporada regular. Esta variable representa de manera directa el desempeño global de un equipo, ya que ganar más partidos es el objetivo principal dentro de una temporada. A partir de ella se busca explicar qué factores de rendimiento ofensivo y defensivo tienen mayor influencia en el éxito deportivo.
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\subsection{Variables independientes:}
+Para el análisis de regresión simple se seleccionaron tres variables distintas, cada una analizada en un modelo separado:%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+\begin{itemize}
+    \item \textbf{Diferencia de carreras (RunDiff = R - RA):} mide la diferencia entre las carreras anotadas (\texttt{R}) y las carreras permitidas (\texttt{RA}). Es un indicador directo del dominio de un equipo sobre sus rivales; se espera que un mayor diferencial de carreras se traduzca en un mayor número de victorias (\(\beta > 0\)). 
+    \item \textbf{ERA (Earned Run Average):} representa el promedio de carreras limpias permitidas por cada nueve entradas lanzadas. Es una métrica clave de la calidad del pitcheo: un valor más bajo de ERA refleja un mejor desempeño de los lanzadores y, por lo tanto, debería estar negativamente correlacionado con las derrotas y positivamente con las victorias (\(\beta < 0\)). 
+    \item \textbf{Jonrones (HR):} corresponde al número total de cuadrangulares conectados por un equipo en una temporada. Dado que los jonrones aportan carreras directas, se espera que tengan una relación positiva con las victorias (\(\beta > 0\)). Además, se incluirá una transformación funcional \(\log(HR+1)\) para evaluar si la relación entre jonrones y victorias presenta un comportamiento no lineal, suavizando el efecto de valores extremos.
+\end{itemize}
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\section{Análisis de Estadísticas Descriptivas}
+
+\subsection{Medidas de tendencia central y dispersión:}
+A partir del dateset maestro con las varibles y observaciones seleccionadas, se calculan las siguientes estadísticas descriptivas:
+\begin{table}[H]
+        \centering
+        \caption{Estadísticas Descriptivas del dataset}
+        \label{tab:desc_stats}
+        \resizebox{\textwidth}{!}{
+        \begin{tabular}{lrrrrrrrrrrr}
+            \hline
+                Variable & Count & Mean & Median & Mode & Std & Var & Min & Q1 & Q3 & IQR & Max \\
+            \hline
+                W       & 600 & 80.97 & 81.00 & 86.00 & 11.79 & 138.92 & 43.00 & 72.00 & 90.00 & 18.00 & 116.00 \\
+                RunDiff & 600 & 0.00  & 2.00  & 54.00 & 111.11 & 12344.79 & -337.00 & -87.00 & 81.25 & 168.25 & 300.00 \\
+                ERA     & 600 & 4.25  & 4.21  & 4.01  & 0.53  & 0.29 & 2.94 & 3.86 & 4.60 & 0.74 & 5.71 \\
+                HR      & 600 & 173.47 & 170.00 & 161.00 & 36.87 & 1359.12 & 91.00 & 148.00 & 199.00 & 51.00 & 307.00 \\
+                logHR1  & 600 & 5.14  & 5.14  & 5.09  & 0.21  & 0.05 & 4.52 & 5.00 & 5.30 & 0.29 & 5.73 \\
+                R       & 600 & 740.67 & 735.00 & 735.00 & 83.21 & 6924.21 & 513.00 & 684.00 & 795.25 & 111.25 & 978.00 \\
+                RA      & 600 & 740.67 & 733.00 & 715.00 & 88.93 & 7909.25 & 525.00 & 676.75 & 804.00 & 127.25 & 981.00 \\
+                G       & 600 & 161.96 & 162.00 & 162.00 & 0.31 & 0.10 & 161.00 & 162.00 & 162.00 & 0.00 & 163.00 \\
+                L       & 600 & 80.97 & 80.50 & 76.00 & 11.76 & 138.34 & 46.00 & 72.00 & 90.00 & 18.00 & 119.00 \\
+            \hline
+        \end{tabular}
+        }
+    \end{table}
+
+A continuación se detallan las características principales:
+
+\begin{itemize}
+    \item \textbf{Victorias (W):} En promedio los equipos ganan 81 juegos por temporada , con una desviación estándar de 11.8. El rango va de 43 a 116 victorias, lo que refleja tanto equipos altamente competitivos como equipos en el extremo opuesto.
+    \item \textbf{Diferencia de carreras (RunDiff):} Tiene media cercana a cero, que sería esperado en un balance global de liga, pero una alta dispersión ($\approx 111$, rango de -337 a +300). Esto muestra que algunos equipos dominan ampliamente a sus rivales mientras otros son ampliamente superados.
+    \item \textbf{ERA (Efectividad del pitcheo):} Promedia 4.25, con valores típicos entre 3.9 y 4.6 (IQR = 0.74). La dispersión es moderada y refleja diferencias en la calidad del pitcheo entre equipos, con casos extremos desde 2.94 hasta 5.71.
+    \item \textbf{Jonrones (HR):} Los equipos conectan en promedio 173 cuadrangulares por temporada, con un rango entre 91 y 307. Esta variabilidad se ve reflejada por las distintas filosofías ofensivas.
+    \item \textbf{Transformación logarítmica (logHR1):} Reduce la dispersión ($\approx 0.21$) y comprime la escala, aunque en este rango de valores la distribución sigue un patrón casi lineal respecto a HR.
+    \item \textbf{Carreras anotadas (R) y recibidas (RA):} Ambas variables tienen media $\approx 741$, lo que es natural dado el equilibrio de la liga. Su dispersión ($\approx 83-89$) muestra diferencias en ofensiva y defensiva entre equipos.
+    \item \textbf{Juegos (G):} Es prácticamente constante en 162, como dicta el calendario, con variaciones mínimas por suspensiones o ajustes.
+    \item \textbf{Derrotas (L):} Presentan la misma estructura que las victorias, con media 81 y desviación de 11.7, dada la relación \(W+L \approx 162\).
+\end{itemize}
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\subsection{Visualización de los datos:}
+
+Con el fin de comprender mejor el comportamiento de las variables y su relación con las victorias, se generaron distintas visualizaciones: histogramas, boxplots, diagramas de dispersión, gráficas de pastel y una serie de tiempo de ejemplo.
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=0.65\textwidth]{../plots/all_histograms.png}
+    \caption{Histogramas de W, RunDiff, ERA, HR, logHR1, R, RA, G y L (2000--2019).}
+\end{figure}
+
+Los histogramas confirman distribuciones aproximadamente simétricas en \textbf{W} y \textbf{L}, con centro en 81 victorias/derrotas. 
+\textbf{RunDiff} muestra gran dispersión, confirmarndo que algunos equipos superan a sus rivales por cientos de carreras, mientras otros son ampliamente superados. 
+\textbf{ERA} se concentra en torno a 4, reflejando diferencias moderadas en pitcheo. 
+\textbf{HR} se distribuye entre 100-300, y su transformación \textbf{logHR1} comprime los valores extremos, suavizando colas. 
+\textbf{R} y \textbf{RA} tienen formas parecidas, centradas cerca de 740, lo que refleja equilibrio ofensivo-defensivo en la liga. 
+\textbf{G} es casi una constante en 162, validando la homogeneidad del calendario.
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=0.7\textwidth]{../plots/all_boxplots.png}
+    \caption{Boxplots por variable: dispersión, mediana y valores atípicos.}
+\end{figure}
+
+Los boxplots identifican \textit{outliers} relevantes: 
+(i) en \textbf{HR}, equipos con poder ofensivo distintivo (300+ HR), 
+(ii) en \textbf{R} se ven reflejados esos mismos casos extremos de producción ofensiva.
+(iii) en \textbf{G}, ligeras desviaciones (161 o 163 partidos), explicadas por suspensiones o dobles juegos. 
+En \textbf{RunDiff} se observan extremos tanto positivos como negativos, reflejando temporadas históricas dominantes o muy pobres.
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=\textwidth]{../plots/all_scatter_W.png}
+    \caption{Diagramas de dispersión: W vs RunDiff, ERA, HR y log(HR+1).}
+\end{figure}
+
+\textbf{W vs RunDiff} presenta la relación más fuerte y lineal: a mayor diferencial de carreras, más victorias, confirmando su validez como predictor central.  
+\textbf{W vs ERA} muestra una relación negativa clara: equipos con menor efectividad del pitcheo (ERA baja) ganan más.  
+\textbf{W vs HR} y \textbf{W vs logHR1} tienen asociación positiva pero más difusa; los cuadrangulares ayudan a ganar, aunque con variabilidad, lo cual lleva a explorar transformaciones.
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=0.75\textwidth]{../plots/scatter_HR_logHR1.png}
+    \caption{Relación funcional entre HR y log(HR+1).}
+\end{figure}
+
+La curva muestra que $\log(HR+1)$ suaviza el crecimiento de los HR. 
+Aunque en el rango 90-300 se mantiene casi lineal, la transformación previene que valores extremos dominen el ajuste del modelo, haciendo el análisis más robusto.
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=0.6\textwidth]{../plots/pie_ligas_colored.png}
+    \caption{Distribución de observaciones por liga (AL vs NL), 2000--2019.}
+\end{figure}
+
+El dataset está balanceado entre \textbf{NL} (52.2\%) y \textbf{AL} (47.8\%),y con esto se garantiza representatividad de ambas ligas, sin sesgos por desbalance en la muestra.
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=0.8\textwidth]{../plots/ts_W_NYA.png}
+    \caption{Serie de tiempo de victorias (ejemplo: NYA), 2000--2019.}
+\end{figure}
+
+Los Yankees de Nueva York (NYA) ilustran la variabilidad interanual en victorias. 
+Se observan picos de más de 100 triunfos en varias temporadas y caídas a la franja de 85-90 victorias en otras. 
+Este patrón muestra que incluso equipos consistentemente competitivos presentan fluctuaciones naturales, útiles para entender la estabilidad del modelo a lo largo del tiempo.
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\subsection{Identificación de valores atípicos:}
+
+El análisis mediante el método del rango intercuartílico (IQR) permitió identificar observaciones atípicas en varias variables:
+
+\begin{itemize}
+    \item \textbf{Victorias (W):} El caso más extremo corresponde a los Detroit Tigers en 2003, con solo 43 victorias, claramente fuera del rango intercuartílico (45--117). Esto refleja una de las peores campañas en la historia reciente de MLB.
+    \item \textbf{Jonrones (HR):} En 2019 se detectaron valores extraordinariamente altos en equipos como Minnesota Twins (307), New York Yankees (306), Houston Astros (288) y Los Angeles Dodgers (279), todos por encima del umbral superior (275.5). Esto coincide con el ``Año del jonrón''. en 2019, cuando se registró un récord colectivo histórico de cuadrangulares.
+    \item \textbf{Transformación log(HR+1):} Aunque la mayoría de observaciones están dentro del rango, aparecen valores bajos en equipos con ofensivas débiles como los San Diego Padres (2011) y San Francisco Giants (2008), lo que confirma que esta transformación ayuda a suavizar pero no elimina del todo los outliers.
+    \item \textbf{Carreras anotadas (R):} Se identifican equipos con valores extremos, por ejemplo, los Yankees (2007) y Rockies (2000) con más de 968 carreras, y los Marlins (2013) o Mariners (2010) con apenas 513, fuera del rango esperado (517--962).
+    \item \textbf{Juegos disputados (G):} Aunque la liga establece un calendario de 162 juegos, se detectan temporadas con 161 o 163 partidos, resultado de suspensiones o reprogramaciones (e.g., Cubs 2009, Rockies 2007, Rangers 2013).
+    \item \textbf{Derrotas (L):} Nuevamente destacan los Tigers de 2003, con 119 derrotas, simétrico al outlier en victorias.
+\end{itemize}
+
+Estos valores atípicos no necesariamente representan errores de medición, sino hechos históricos del béisbol (equipos en un muy bajo nivel, ofensivas históricas, o particularidades del calendario). Sin embargo, es importante tenerlos en cuenta porque pueden influir en el ajuste de los modelos de regresión, afectando los coeficientes e incrementando la dispersión residual.
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\section{Análisis de Correlación}
+\subsection{Correlación entre las variables:}
+
+Se calculó el coeficiente de correlación de Pearson y Spearman entre el número de victorias (W) y las variables explicativas 
+(RunDiff, ERA, HR y logHR1). Los resultados se resumen en la Tabla \ref{tab:corr_w_x} y en las Figuras 
+\ref{fig:heatmap_pearson}--\ref{fig:heatmap_spearman}.
+
+\input{../latex/tables/corr_W_vs_X.tex}
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=0.75\textwidth]{../plots/bar_abs_r_W.png}
+    \caption{Fuerza de asociación absoluta (|r|) de cada predictor con W (Pearson).}
+    \label{fig:bar_abs_r}
+\end{figure}
+
+\subsection{Interpretación de los resultados}
+
+\begin{itemize}
+    \item \textbf{RunDiff} presenta la correlación más fuerte con $W (r = 0.94, p < 0.001)$, lo que confirma que la diferencia de carreras es un predictor casi determinístico del número de victorias.
+    \item \textbf{ERA} muestra una correlación negativa alta $(r = -0.66, p < 0.001)$. Esto indica que un menor promedio de carreras limpias permitidas (mejor pitcheo) está fuertemente asociado con más victorias.
+    \item \textbf{HR} y su transformación \textbf{logHR1} exhiben correlaciones positivas moderadas $(r \approx 0.39, p < 0.001)$. Los jonrones ayudan a ganar partidos, aunque no explican tanto como RunDiff o ERA. La similitud entre HR y logHR1 confirma que la transformación logarítmica apenas cambia la relación en el rango observado (90--300 jonrones).
+\end{itemize}
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=0.6\textwidth]{../plots/heatmap_corr_pearson.png}
+    \caption{Matriz de correlación (Pearson) entre W y las variables explicativas.}
+    \label{fig:heatmap_pearson}
+\end{figure}
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=0.6\textwidth]{../plots/heatmap_corr_spearman.png}
+    \caption{Matriz de correlación (Spearman) entre W y las variables explicativas.}
+    \label{fig:heatmap_spearman}
+\end{figure}
+
+Tanto Pearson como Spearman producen resultados consistentes: RunDiff y ERA son los predictores más fuertemente asociados con las victorias, mientras que los jonrones tienen un efecto más limitado. Esto anticipa que los modelos de regresión simple con RunDiff y ERA tendrán mayor poder explicativo que aquellos con HR.
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\section{Modelo de Regresión Simple (3 modelos)}
+
+\subsection{Resultados y resumen de estimaciones}
+
+Se ajustaron cuatro modelos de regresión lineal simple con \textbf{W} (victorias por temporada) 
+como variable dependiente y, por separado, como variables explicativas: \textbf{RunDiff}, \textbf{ERA}, \textbf{HR} y \textbf{\(\log(\text{HR}+1)\)}. 
+Los resultados completos se muestran en la Tabla~\ref{tab:ols_summary}:
+
+\input{../latex/tables/ols_simple_summary.tex}
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=\textwidth]{../plots/ols_scatter_grid_RunDiff_ERA_HR.png}
+    \caption{Diagramas de dispersión: W vs RunDiff, ERA, HR y log(HR+1).}
+\end{figure}
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=\textwidth]{../plots/ols_resid_grid_RunDiff_ERA_HR.png}
+    \caption{Residuales vs valores ajustados: W vs RunDiff, ERA, HR y log(HR+1).}
+\end{figure}
+
+\subsection{Interpretación de los resultados}
+
+\paragraph{W \(\sim\) RunDiff.}  
+Este modelo presenta un ajuste sobresaliente: \(R^2=0.883\), con un error medio de apenas 4 juegos (RMSE \(=4.03\), MAE \(=3.21\)). El coeficiente estimado de 0.0997 implica que por cada 10 carreras de diferencia anotadas sobre el rival, un equipo gana en promedio una victoria adicional. El intercepto de 80.97 refleja que un equipo “neutral” (RunDiff=0) tiende a terminar con 81 victorias, lo cual coincide con el balance teórico de .500. Este es, con diferencia, el modelo más predictivo.
+
+\paragraph{W \(\sim\) ERA.}  
+La relación entre la efectividad de los lanzadores y las victorias también es significativa (\(p<0.001\)), con una pendiente de -14.44: reducir en 1.00 la ERA equivale aproximadamente a 14 victorias adicionales. Aunque el ajuste es más modesto que con RunDiff (\(R^2=0.43\)), este modelo ofrece una visión valiosa del rol del pitcheo en el éxito global del equipo.
+
+\paragraph{W \(\sim\) HR.}  
+Cada 10 jonrones se asocian con 1.25 victorias adicionales. Sin embargo, el poder explicativo es limitado (\(R^2=0.154\), RMSE=10.83). Esto refleja que, aunque los cuadrangulares ayudan, existen múltiples caminos ofensivos para anotar que no se capturan solo con HR.
+
+\paragraph{W \(\sim \log(\text{HR}+1)\).}  
+La transformación logarítmica produce resultados prácticamente idénticos a HR lineal (\(R^2=0.152\), RMSE=10.84). Esto confirma lo observado en el análisis exploratorio: en el rango de 90–300 HR, la relación con victorias es casi lineal y la transformación no mejora el ajuste.
+
+\subsection{Evaluación de la bondad de ajuste}
+
+\begin{itemize}
+    \item \textbf{Mejor modelo:} RunDiff domina en todos los indicadores (\(R^2\), AIC, BIC, RMSE, MAE).
+    \item \textbf{Modelo intermedio:} ERA es una métrica útil, con un ajuste razonable, que complementa la interpretación sabermétrica con una perspectiva puramente de pitcheo.
+    \item \textbf{Modelos débiles:} HR y \(\log(HR+1)\) muestran asociaciones significativas pero débiles, explicando solo un 15\% de la variabilidad de W.
+    \item \textbf{Pruebas de significancia:} En todos los casos, la prueba F global confirma que los modelos son estadísticamente significativos (\(p<0.001\)).
+    \item \textbf{Error de predicción:} Con RunDiff, el error típico es de $\approx 3\text{--}4$ victorias por temporada; con ERA, sube a $\approx 7\text{--}9$; con HR, a casi $\approx 9\text{--}11$.
+\end{itemize}
+
+\noindent Bajo este análisis, se puede concluir que el diferencial de carreras es el mejor predictor de victorias. Sin embargo, ERA aporta información clave sobre la importancia del pitcheo, mientras que los jonrones reflejan solo una parte limitada de la ofensiva.
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\section{Formas Funcionales}
+Para cada predictor probamos una forma lineal y una alternativa no lineal:
+
+\begin{enumerate}
+    \item \textbf{HR} vs.\ \(\log(\text{HR}+1)\); 
+    \item \textbf{ERA} lineal vs.\ cuadrática \((\text{ERA}^2)\); 
+    \item \textbf{RunDiff} lineal vs.\ cuadrática \((\text{RunDiff}^2)\).
+\end{enumerate}
+La comparación se basó en \(R^2\), \(R^2_{adj}\), AIC/BIC, RMSE in--sample y RMSE de validación cruzada (10-fold), además de diagnósticos Breusch-Pagan (heterocedasticidad) y RESET de Ramsey (no linealidades u omisiones).
+
+\input{../latex/tables/formas_funcionales_summary.tex}
+
+\begin{figure}[H]\centering
+    \includegraphics[width=\textwidth]{../plots/formas_funcionales_HR.png}
+    \caption{HR: comparación lineal vs.\ \(\log(\text{HR}+1)\).}
+    \label{fig:ff_hr}
+\end{figure}
+
+\begin{figure}[H]\centering
+    \includegraphics[width=\textwidth]{../plots/formas_funcionales_ERA.png}
+    \caption{ERA: comparación lineal vs.\ cuadrática.}
+    \label{fig:ff_era}
+\end{figure}
+    
+    \begin{figure}[H]\centering
+    \includegraphics[width=\textwidth]{../plots/formas_funcionales_RunDiff.png}
+    \caption{RunDiff: comparación lineal vs.\ cuadrática.}
+    \label{fig:ff_rundiff}
+\end{figure}
+
+\subsection{Resultados e interpretación}
+
+    \paragraph{HR (\(W \sim HR\) vs.\ \(W \sim \log(\text{HR}+1)\)).}
+    Las métricas son prácticamente idénticas entre la forma lineal y la logarítmica: \(R^2 \approx 0.153\), RMSE \(\approx 10.84\) y AIC/BIC casi iguales. 
+    Ni el test RESET (p=0.59 para log y p=0.31 para lineal) ni Breusch--Pagan (p\(\approx 0.37{-}0.54\)) sugieren problemas de especificación u heterocedasticidad. 
+    \textit{Conclusión:} la transformación \(\log(\text{HR}+1)\) \textbf{no aporta mejora} sustantiva; mantenemos \textbf{HR lineal} como especificación base y usamos la versión logarítmica sólo como contraste funcional.
+
+    \paragraph{ERA (\(W \sim \text{ERA}\) vs.\ \(W \sim \text{ERA}+\text{ERA}^2\)).}
+    El término cuadrático no mejora el ajuste: \(R^2\) se mantiene (0.4296 vs.\ 0.4296), AIC/BIC \textit{empeoran} levemente con el cuadrático, y el RMSE-CV también es ligeramente mayor (8.92 vs.\ 8.90). 
+    RESET es significativo en ambas (p=0.0168 lineal; p=0.0047 cuadrática), por lo que la curvatura de segundo grado \textbf{no} corrige del todo la posible omisión de forma o variables. 
+    BP no detecta heterocedasticidad (p\(\approx 0.09{-}0.10\)). 
+    \textit{Conclusión:} \textbf{era suficiente la forma lineal} para ERA; incorporar \(\text{ERA}^2\) no justifica la mayor complejidad.
+
+    \paragraph{RunDiff (\(W \sim \text{RunDiff}\) vs.\ \(W \sim \text{RunDiff}+\text{RunDiff}^2\)).}
+    Aquí sí aparece una \textit{mejora pequeña pero consistente}: el \(R^2\) sube de 0.8827 a 0.8835, AIC baja (3380.44 \(\rightarrow\) 3378.12), RMSE disminuye (4.034 \(\rightarrow\) 4.020) y el RESET deja de ser significativo (p=0.0303 \(\rightarrow\) 0.193), lo que sugiere que el término cuadrático captura una leve curvatura. BP no señala heterocedasticidad. 
+    \textit{Conclusión:} \textbf{RunDiff cuadrático} ofrece el mejor compromiso (ligera mejora de ajuste y especificación más estable), aunque el \textit{gain} es modesto.
+
+\subsection{Validación del modelo transformado}
+
+    Con base en los resultados anteriores y en las Figuras~\ref{fig:ff_hr}\ref{fig:ff_era}--\ref{fig:ff_rundiff}, seleccionamos como especificaciones finales por predictor:
+    \begin{itemize}
+        \item \(W \sim \text{RunDiff} + \text{RunDiff}^2\) (mejor AIC y RESET no significativo).
+        \item \(W \sim \text{ERA}\) (lineal; el término cuadrático no mejora).
+        \item \(W \sim \text{HR}\) (lineal; la versión logarítmica es equivalente en ajuste).
+    \end{itemize}
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\section{Evaluación del Modelo de Regresión}
+\subsection{Pruebas de significancia}
+\paragraph{Tablas de resultados.}
+A continuación se muestran (i) la significancia \emph{global} por modelo mediante la prueba \(F\), y (ii) la significancia 
+\emph{individual} de los coeficientes mediante pruebas \(t\) con intervalos de confianza al 95\%.
+
+\input{../latex/tables/significancia_global_ols.tex}
+
+\input{../latex/tables/significancia_ols.tex}
+
+De las tablas anteriores, se puede concluir que:
+\begin{itemize}
+    \item \textbf{Todos los modelos son globalmente significativos} (Tabla~\ref{tab:significancia_global_ols}):
+    \begin{itemize}
+        \item \(W \sim \text{RunDiff} + \text{RunDiff}^2\): \(F(2,597)=2263.86\), \(p<0.001\), \(R^2=0.8835\), \(R^2_{adj}=0.8831\).
+        \item \(W \sim \text{RunDiff}\): \(F(1,598)=4498.48\), \(p<0.001\), \(R^2=0.8827\).
+        \item \(W \sim \text{ERA}\): \(F(1,598)=450.37\), \(p<0.001\), \(R^2=0.4296\).
+        \item \(W \sim \text{HR}\) y \(W \sim \log(\text{HR}+1)\): \(F\approx 108\), \(p<0.001\), \(R^2\approx 0.153\).
+    \end{itemize}
+
+    \item \textbf{Significancia individual de coeficientes} (Tabla~\ref{tab:significancia_ols}):
+    \begin{itemize}
+        \item \(\text{RunDiff}\) en el modelo lineal: \(\hat\beta_1=0.0997\) (EE \(=0.0015\)), \(t=67.07\), \(p<0.001\), IC95\% \([0.0967,\,0.1026]\). 
+        \item \(\text{ERA}\): \(\hat\beta_1=-14.44\) (EE \(=0.68\)), \(t=-21.22\), \(p<0.001\), IC95\% \([-15.78,\,-13.11]\).
+        \item \(\text{HR}\): \(\hat\beta_1=0.1253\) (EE \(=0.0120\)), \(t=10.42\), \(p<0.001\), IC95\% \([0.1017,\,0.1489]\).
+        \item \(\log(\text{HR}+1)\): \(\hat\beta_1=21.46\) (EE \(=2.07\)), \(t=10.36\), \(p<0.001\), IC95\% \([17.39,\,25.53]\).
+        \item \textbf{Cuadrático} \(\text{RunDiff}^2\): \(\hat\beta_2=-2.2\times 10^{-5}\) (EE \(=1.1\times10^{-5}\)), \(t=-2.08\), \(p=0.038\), IC95\% \([-4.3\times10^{-5},\,-1.0\times10^{-6}]\). Aunque el efecto marginal es muy pequeño, es estadísticamente distinto de cero al 5\%.
+    \end{itemize}
+
+    El mejor ajuste lo ofrece \(\text{RunDiff}\) (y su versión cuadrática con ligera mejora), seguido por \(\text{ERA}\). Los modelos con \(\text{HR}\) o \(\log(\text{HR}+1)\) son significativos pero con \(R^2\) notablemente menor.
+\end{itemize}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\section{Pronóstico}
+\subsection{Generación del pronóstico}
+Para evaluar la capacidad predictiva, dividimos el panel equipo-año en un \textit{split} temporal:
+\emph{entrenamiento} 2000–2016 (510 obs.) y \emph{prueba} 2017-2019 (90 obs.). Con base en la evidencia previa (mayor $R^2$, AIC/BIC y CV), el modelo usado para 
+pronosticar fue el de mejor desempeño dentro de las formas funcionales consideradas:
+\[
+\text{W} \;=\; \beta_0 \;+\; \beta_1\,\text{RunDiff}\;+\;\beta_2\,\text{RunDiff}^2,
+\]
+ajustado sólo con los datos de entrenamiento. Sobre el conjunto de prueba, el modelo alcanza
+RMSE \(=3.89\) y MAE \(=2.94\) (frente a RMSE \(=3.95\) y MAE \(=2.98\) del modelo lineal en \texttt{RunDiff}).
+La \autoref{fig:parity_test_best} muestra el \textit{parity plot} (observado vs.\ pronosticado) en prueba:
+los puntos se alinean alrededor de la diagonal, lo que refleja buen ajuste predictivo sin sesgos evidentes.
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=0.5\linewidth]{../plots/forecast_parity_test_best.png}
+    \caption{Parity plot (set de prueba) del mejor modelo: \( \text{W} \sim \text{RunDiff} + \text{RunDiff}^2 \).}
+    \label{fig:parity_test_best}
+\end{figure}
+
+\subsection{Intervalos de predicción}
+Además del pronóstico puntual \(\hat{W}\), se calcularon:
+(i) el intervalo de confianza al 95\% para la media condicional \(E[W \mid \text{RunDiff}]\), y
+(ii) el intervalo de \emph{predicción} al 95\% para observacionesau futuras \(W^\ast\).
+La \autoref{fig:forecast_bands} ilustra ambas bandas sobre el set de prueba: la banda verde (IC de la media) es más estrecha, mientras que la banda naranja (intervalo de predicción) refleja la variabilidad individual.
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=.85\linewidth]{../plots/forecast_intervals_vs_rundiff_test.png}
+    \caption{Pronóstico en prueba con bandas de incertidumbre (IC 95\% de la media y predicción 95\%).}
+    \label{fig:forecast_bands}
+\end{figure}
+
+Como referencia, para valores representativos de \texttt{RunDiff} se obtuvieron los siguientes intervalos (en el set de prueba):
+
+\begin{table}[H]
+    \centering
+    \caption{Intervalos de predicción}
+    \label{tab:pred_intervals}
+    \begin{tabular}{rcccccc}
+      \toprule
+      RunDiff & $\hat{W}$ & IC\;95\% inf & IC\;95\% sup & Pred.\;95\% inf & Pred.\;95\% sup \\
+      \midrule
+      -150 & 65.69 & 65.04 & 66.35 & 57.69 & 73.69 \\
+       -50 & 76.06 & 75.60 & 76.52 & 68.08 & 84.05 \\
+         0 & 81.13 & 80.68 & 81.59 & 73.15 & 89.12 \\
+        50 & 86.13 & 85.69 & 86.57 & 78.14 & 94.11 \\
+       150 & 95.88 & 95.17 & 96.60 & 87.88 & 103.89 \\
+       250 & 105.33 & 103.63 & 107.03 & 97.18 & 113.49 \\
+      \bottomrule
+    \end{tabular}
+  \end{table}
+  
+Obsérvese que la amplitud típica del intervalo de predicción ronda 15-18 victorias, mientras que el IC de la media es mucho más estrecho $(\approx0.9-1.9)$, como se espera teóricamente.
+
+\subsection{Evaluación del pronóstico}
+El desempeño predictivo se comparó entre modelos usando métricas estándar sobre \emph{train} y \emph{test}.
+En prueba (2017–2019), los resultados fueron:
+\begin{itemize}
+    \item \textbf{Mejor modelo} \(W \sim \text{RunDiff} + \text{RunDiff}^2\): MSE \(=15.10\), RMSE \(=3.89\), MAE \(=2.94\).
+    \item \textbf{Lineal en RunDiff}: MSE \(=15.57\), RMSE \(=3.95\), MAE \(=2.98\).
+    \item \textbf{Lineal en ERA}: RMSE \(=9.14\), MAE \(=7.21\).
+    \item \textbf{Lineal en HR}: RMSE \(=12.88\), MAE \(=10.45\).
+\end{itemize}
+La mejora del término cuadrático frente al lineal en \texttt{RunDiff} es pequeña pero consistente
+y se acompaña de mejores AIC/BIC y validación cruzada. Además, \texttt{RunDiff} explica de forma sustantiva las victorias, y el modelo cuadrático aporta un 
+refinamiento marginal útil para pronóstico operativo.
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\section{Conclusiones}
+\subsection{Resumen de los hallazgos}
+El análisis confirma que la \textbf{diferencia de carreras} (\texttt{RunDiff}) es, con amplio margen, el mejor determinante de las victorias (\texttt{W}) a nivel equipo–año (2000–2019). En los modelos lineales simples, \texttt{RunDiff} explica cerca del \(\,88\%\) de la variación de \texttt{W} (\(R^2\approx0.883\)), con errores típicos de pronóstico en el orden de \(\,3\text{--}4\) victorias por temporada (RMSE \(\approx 4\)). La interpretación es directa: \(\hat\beta_1\approx 0.10\) implica que \(\,\Delta 10\) carreras en el diferencial se traducen, en promedio, en \(\,\approx 1\) victoria adicional, y el intercepto cercano a 81 victorias es coherente con un equipo ``neutral'' (\texttt{RunDiff}=0).
+
+La \textbf{efectividad del pitcheo} (ERA) exhibe una relación negativa y sustantiva con \texttt{W} (\(r\approx -0.66\); \(R^2\approx 0.43\)): reducir en una unidad la ERA se asocia con \(\,\approx 14\) victorias más. Aunque su poder explicativo es menor que el de \texttt{RunDiff}, ofrece evidencia clara del rol del pitcheo en el desempeño global.
+
+Los \textbf{jonrones} (HR) y su transformación \(\log(\text{HR}+1)\) muestran asociaciones positivas pero \textit{moderadas} (\(R^2\approx 0.15\)). En el rango observado (90–300 HR) la versión logarítmica no mejora de manera apreciable al modelo lineal, lo que sugiere que el conteo de HR, por sí solo, captura sólo un fragmento del aporte ofensivo a las victorias.
+
+En \textbf{formas funcionales}, un término cuadrático en \texttt{RunDiff} aporta una \textit{mejora pequeña pero consistente}: \(R^2\) y AIC/BIC mejoran levemente, el RMSE baja (\(\approx 4.03 \rightarrow 4.02\)) y el test RESET deja de ser significativo, lo que indica mejor especificación. En \texttt{ERA}, el término cuadrático no agrega valor y empeora marginalmente los criterios de información; para \texttt{HR}, la transformación logarítmica es prácticamente equivalente a la lineal.
+
+Para \textbf{pronóstico} con \textit{split} temporal (train 2000–2016, test 2017–2019), el modelo \(\,W \sim \text{RunDiff} + \text{RunDiff}^2\) logra \(\text{RMSE}_{\text{test}}\approx 3.89\) y \(\text{MAE}_{\text{test}}\approx 2.94\), superando ligeramente al modelo lineal en \texttt{RunDiff}. Las bandas de incertidumbre muestran que, aunque el IC de la media es estrecho, los \textbf{intervalos de predicción} son naturalmente más amplios (del orden de 15–18 victorias), reflejando la variabilidad individual de equipos y temporadas.
+
+\subsection{Recomendaciones}
+\begin{enumerate}
+    \item \textbf{Uso operativo del modelo.} Para pronósticos rápidos y explicables, emplear \(\,W \sim \text{RunDiff}\) como base; cuando se busque el mejor desempeño posible con mínima complejidad adicional, preferir \(\,W \sim \text{RunDiff} + \text{RunDiff}^2\) (mejora marginal pero consistente y mejor especificación).
+    \item \textbf{Comunicación de incertidumbre.} Reportar siempre los \textit{intervalos de predicción} junto con el pronóstico puntual (\(\hat{W}\)); el IC de la media no sustituye la amplitud de la incertidumbre a nivel de observación futura.
+    \item \textbf{Interpretación de ERA y HR.} Utilizar \texttt{ERA} como indicador complementario de diagnóstico (impacto del pitcheo) y evitar usar \texttt{HR} como único predictor de victorias; el poder explicativo de HR aislado es limitado.
+    \item \textbf{Tratamiento de atípicos.} No eliminar outliers históricos por defecto (p.\,ej., 2019 en HR o 2003 DET en W) y, si se requiere robustez adicional, contrastar con estimadores/intervalos robustos o winsorización como análisis de sensibilidad.
+    \item \textbf{Extensiones futuras.} 
+    \begin{itemize}
+        \item Pasar a \textbf{regresión múltiple} (p.\,ej., \texttt{RunDiff} + métricas ofensivas y de pitcheo adicionales) para descomponer mejor contribuciones y reducir sesgo por omisión.
+        \item Explorar \textbf{modelos de panel} con efectos fijos por franquicia/año para capturar heterogeneidades persistentes (manager, estadio, presupuesto).
+        \item Evaluar especificaciones con \textbf{heterocedasticidad robusta} y \textbf{validación temporal} (rolling-origin) para escenarios de predicción real.
+    \end{itemize}
+\end{enumerate}
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\section{Bibliografía}
+Lahman Baseball Database -Society for American Baseball Research. (2025). Sabr.org. \url{https://sabr.org/lahman-database/}
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\section{Anexo}
+\subsection{Link al repositorio con código fuente y salidas correspondientes}
+\url{https://github.com/enriquegomeztagle/MCD-ProyectoFinalEconometria-DeterminantesVictoriasMLB}
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\end{document}
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
