@@ -128,7 +128,6 @@ A partir del dateset maestro con las varibles y observaciones seleccionadas, se 
                 RunDiff & 600 & 0.00  & 2.00  & 54.00 & 111.11 & 12344.79 & -337.00 & -87.00 & 81.25 & 168.25 & 300.00 \\
                 ERA     & 600 & 4.25  & 4.21  & 4.01  & 0.53  & 0.29 & 2.94 & 3.86 & 4.60 & 0.74 & 5.71 \\
                 HR      & 600 & 173.47 & 170.00 & 161.00 & 36.87 & 1359.12 & 91.00 & 148.00 & 199.00 & 51.00 & 307.00 \\
-                logHR1  & 600 & 5.14  & 5.14  & 5.09  & 0.21  & 0.05 & 4.52 & 5.00 & 5.30 & 0.29 & 5.73 \\
                 R       & 600 & 740.67 & 735.00 & 735.00 & 83.21 & 6924.21 & 513.00 & 684.00 & 795.25 & 111.25 & 978.00 \\
                 RA      & 600 & 740.67 & 733.00 & 715.00 & 88.93 & 7909.25 & 525.00 & 676.75 & 804.00 & 127.25 & 981.00 \\
                 G       & 600 & 161.96 & 162.00 & 162.00 & 0.31 & 0.10 & 161.00 & 162.00 & 162.00 & 0.00 & 163.00 \\
@@ -145,7 +144,6 @@ A continuación se detallan las características principales:
     \item \textbf{Diferencia de carreras (RunDiff):} Tiene media cercana a cero, que sería esperado en un balance global de liga, pero una alta dispersión ($\approx 111$, rango de -337 a +300). Esto muestra que algunos equipos dominan ampliamente a sus rivales mientras otros son ampliamente superados.
     \item \textbf{ERA (Efectividad del pitcheo):} Promedia 4.25, con valores típicos entre 3.9 y 4.6 (IQR = 0.74). La dispersión es moderada y refleja diferencias en la calidad del pitcheo entre equipos, con casos extremos desde 2.94 hasta 5.71.
     \item \textbf{Jonrones (HR):} Los equipos conectan en promedio 173 cuadrangulares por temporada, con un rango entre 91 y 307. Esta variabilidad se ve reflejada por las distintas filosofías ofensivas.
-    \item \textbf{Transformación logarítmica (logHR1):} Reduce la dispersión ($\approx 0.21$) y comprime la escala, aunque en este rango de valores la distribución sigue un patrón casi lineal respecto a HR.
     \item \textbf{Carreras anotadas (R) y recibidas (RA):} Ambas variables tienen media $\approx 741$, lo que es natural dado el equilibrio de la liga. Su dispersión ($\approx 83-89$) muestra diferencias en ofensiva y defensiva entre equipos.
     \item \textbf{Juegos (G):} Es prácticamente constante en 162, como dicta el calendario, con variaciones mínimas por suspensiones o ajustes.
     \item \textbf{Derrotas (L):} Presentan la misma estructura que las victorias, con media 81 y desviación de 11.7, dada la relación \(W+L \approx 162\).
@@ -157,20 +155,20 @@ Con el fin de comprender mejor el comportamiento de las variables y su relación
 
 \begin{figure}[H]
     \centering
-    \includegraphics[width=0.65\textwidth]{../plots/all_histograms.png}
-    \caption{Histogramas de W, RunDiff, ERA, HR, logHR1, R, RA, G y L (2000--2019).}
+    \includegraphics[width=0.65\textwidth]{../plots/final_version/all_histograms.png}
+    \caption{Histogramas de W, RunDiff, ERA, HR, R, RA, G y L (2000--2019).}
 \end{figure}
 
 Los histogramas confirman distribuciones aproximadamente simétricas en \textbf{W} y \textbf{L}, con centro en 81 victorias/derrotas. 
 \textbf{RunDiff} muestra gran dispersión, confirmarndo que algunos equipos superan a sus rivales por cientos de carreras, mientras otros son ampliamente superados. 
 \textbf{ERA} se concentra en torno a 4, reflejando diferencias moderadas en pitcheo. 
-\textbf{HR} se distribuye entre 100-300, y su transformación \textbf{logHR1} comprime los valores extremos, suavizando colas. 
+\textbf{HR} se distribuye entre 100-300.
 \textbf{R} y \textbf{RA} tienen formas parecidas, centradas cerca de 740, lo que refleja equilibrio ofensivo-defensivo en la liga. 
 \textbf{G} es casi una constante en 162, validando la homogeneidad del calendario.
 
 \begin{figure}[H]
     \centering
-    \includegraphics[width=0.7\textwidth]{../plots/all_boxplots.png}
+    \includegraphics[width=0.7\textwidth]{../plots/final_version/all_boxplots.png}
     \caption{Boxplots por variable: dispersión, mediana y valores atípicos.}
 \end{figure}
 
@@ -182,26 +180,18 @@ En \textbf{RunDiff} se observan extremos tanto positivos como negativos, refleja
 
 \begin{figure}[H]
     \centering
-    \includegraphics[width=\textwidth]{../plots/all_scatter_W.png}
-    \caption{Diagramas de dispersión: W vs RunDiff, ERA, HR y log(HR+1).}
+    \includegraphics[width=\textwidth]{../plots/final_version/all_scatter_W.png}
+    \caption{Diagramas de dispersión: W vs RunDiff, ERA y HR.}
 \end{figure}
 
 \textbf{W vs RunDiff} presenta la relación más fuerte y lineal: a mayor diferencial de carreras, más victorias, confirmando su validez como predictor central.  
 \textbf{W vs ERA} muestra una relación negativa clara: equipos con menor efectividad del pitcheo (ERA baja) ganan más.  
-\textbf{W vs HR} y \textbf{W vs logHR1} tienen asociación positiva pero más difusa; los cuadrangulares ayudan a ganar, aunque con variabilidad, lo cual lleva a explorar transformaciones.
+\textbf{W vs HR} tiene asociación positiva pero más difusa; los cuadrangulares ayudan a ganar, aunque con variabilidad.
+
 
 \begin{figure}[H]
     \centering
-    \includegraphics[width=0.75\textwidth]{../plots/scatter_HR_logHR1.png}
-    \caption{Relación funcional entre HR y log(HR+1).}
-\end{figure}
-
-La curva muestra que $\log(HR+1)$ suaviza el crecimiento de los HR. 
-Aunque en el rango 90-300 se mantiene casi lineal, la transformación previene que valores extremos dominen el ajuste del modelo, haciendo el análisis más robusto.
-
-\begin{figure}[H]
-    \centering
-    \includegraphics[width=0.6\textwidth]{../plots/pie_ligas_colored.png}
+    \includegraphics[width=0.6\textwidth]{../plots/final_version/pie_ligas_colored.png}
     \caption{Distribución de observaciones por liga (AL vs NL), 2000--2019.}
 \end{figure}
 
@@ -225,7 +215,6 @@ El análisis mediante el método del rango intercuartílico (IQR) permitió iden
 \begin{itemize}
     \item \textbf{Victorias (W):} El caso más extremo corresponde a los Detroit Tigers en 2003, con solo 43 victorias, claramente fuera del rango intercuartílico (45--117). Esto refleja una de las peores campañas en la historia reciente de MLB.
     \item \textbf{Jonrones (HR):} En 2019 se detectaron valores extraordinariamente altos en equipos como Minnesota Twins (307), New York Yankees (306), Houston Astros (288) y Los Angeles Dodgers (279), todos por encima del umbral superior (275.5). Esto coincide con el ``Año del jonrón''. en 2019, cuando se registró un récord colectivo histórico de cuadrangulares.
-    \item \textbf{Transformación log(HR+1):} Aunque la mayoría de observaciones están dentro del rango, aparecen valores bajos en equipos con ofensivas débiles como los San Diego Padres (2011) y San Francisco Giants (2008), lo que confirma que esta transformación ayuda a suavizar pero no elimina del todo los outliers.
     \item \textbf{Carreras anotadas (R):} Se identifican equipos con valores extremos, por ejemplo, los Yankees (2007) y Rockies (2000) con más de 968 carreras, y los Marlins (2013) o Mariners (2010) con apenas 513, fuera del rango esperado (517--962).
     \item \textbf{Juegos disputados (G):} Aunque la liga establece un calendario de 162 juegos, se detectan temporadas con 161 o 163 partidos, resultado de suspensiones o reprogramaciones (e.g., Cubs 2009, Rockies 2007, Rangers 2013).
     \item \textbf{Derrotas (L):} Nuevamente destacan los Tigers de 2003, con 119 derrotas, simétrico al outlier en victorias.
@@ -238,14 +227,14 @@ Estos valores atípicos no necesariamente representan errores de medición, sino
 \subsection{Correlación entre las variables:}
 
 Se calculó el coeficiente de correlación de Pearson y Spearman entre el número de victorias (W) y las variables explicativas 
-(RunDiff, ERA, HR y logHR1). Los resultados se resumen en la Tabla \ref{tab:corr_w_x} y en las Figuras 
+(RunDiff, ERA y HR). Los resultados se resumen en la Tabla \ref{tab:corr_w_x} y en las Figuras 
 \ref{fig:heatmap_pearson}--\ref{fig:heatmap_spearman}.
 
-\input{../latex/tables/corr_W_vs_X.tex}
+\input{../latex/tables/final_version/corr_W_vs_X.tex}
 
 \begin{figure}[H]
     \centering
-    \includegraphics[width=0.75\textwidth]{../plots/bar_abs_r_W.png}
+    \includegraphics[width=0.75\textwidth]{../plots/final_version/bar_abs_r_W.png}
     \caption{Fuerza de asociación absoluta (|r|) de cada predictor con W (Pearson).}
     \label{fig:bar_abs_r}
 \end{figure}
@@ -255,19 +244,19 @@ Se calculó el coeficiente de correlación de Pearson y Spearman entre el númer
 \begin{itemize}
     \item \textbf{RunDiff} presenta la correlación más fuerte con $W (r = 0.94, p < 0.001)$, lo que confirma que la diferencia de carreras es un predictor casi determinístico del número de victorias.
     \item \textbf{ERA} muestra una correlación negativa alta $(r = -0.66, p < 0.001)$. Esto indica que un menor promedio de carreras limpias permitidas (mejor pitcheo) está fuertemente asociado con más victorias.
-    \item \textbf{HR} y su transformación \textbf{logHR1} exhiben correlaciones positivas moderadas $(r \approx 0.39, p < 0.001)$. Los jonrones ayudan a ganar partidos, aunque no explican tanto como RunDiff o ERA. La similitud entre HR y logHR1 confirma que la transformación logarítmica apenas cambia la relación en el rango observado (90--300 jonrones).
+    \item \textbf{HR} exhibe una correlación positiva moderada $(r \approx 0.39, p < 0.001)$. Los jonrones ayudan a ganar, aunque no explican tanto como RunDiff o ERA.
 \end{itemize}
 
 \begin{figure}[H]
     \centering
-    \includegraphics[width=0.6\textwidth]{../plots/heatmap_corr_pearson.png}
+    \includegraphics[width=0.6\textwidth]{../plots/final_version/heatmap_corr_pearson.png}
     \caption{Matriz de correlación (Pearson) entre W y las variables explicativas.}
     \label{fig:heatmap_pearson}
 \end{figure}
 
 \begin{figure}[H]
     \centering
-    \includegraphics[width=0.6\textwidth]{../plots/heatmap_corr_spearman.png}
+    \includegraphics[width=0.6\textwidth]{../plots/final_version/heatmap_corr_spearman.png}
     \caption{Matriz de correlación (Spearman) entre W y las variables explicativas.}
     \label{fig:heatmap_spearman}
 \end{figure}
