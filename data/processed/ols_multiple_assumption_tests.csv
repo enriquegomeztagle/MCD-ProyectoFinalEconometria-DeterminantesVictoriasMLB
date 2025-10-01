@@ -1,0 +1,11 @@
+prueba,estadístico,p_value
+Rainbow (linealidad),1.051045,0.333950
+RESET Ramsey (F),3.763321,0.052861
+Durbin–Watson,1.788626,
+Breusch–Pagan (LM),4.060384,0.255017
+Breusch–Pagan (F),1.353598,0.256071
+White (LM),9.720160,0.373611
+White (F),1.079506,0.375869
+Shapiro–Wilk,0.996431,0.200004
+Jarque–Bera,3.840162,0.146595
+Número de condición,1979.312085,
