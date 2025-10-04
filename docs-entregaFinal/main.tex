@@ -81,7 +81,7 @@ Este enfoque permite comparar la \emph{relevancia relativa} de los predictores (
 %
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 \subsection{Descripción de los datos:}
-Se utiliza la Base de Datos de Béisbol de Lahman 1871-2024, publicada por la Society for American Baseball Research (SABR) con datos recopilados por Sean Lahman. La base está disponible en formato CSV, y específicamente se emplea el archivo \texttt{Teams.csv}, que contiene estadísticas anuales de desempeño de cada equipo de Grandes Ligas . 
+Se utiliza la Base de Datos de Béisbol de Lahman 1871-2024, publicada por la Society for American Baseball Research (SABR) con datos recopilados por Sean Lahman. La base está disponible en formato CSV, y específicamente se emplea el archivo \texttt{Teams.csv}, que contiene estadísticas anuales de desempeño de cada equipo de Grandes Ligas. 
 
 El archivo original incluye 48 columnas y 3075 observaciones, correspondientes a temporadas desde 1871 hasta 2024. Sin embargo, para este trabajo se decidió filtrar únicamente los equipos de las ligas Americana (AL) y Nacional (NL), ya que representan las ligas principales de las Grandes Ligas de Béisbol y permiten obtener datos más homogéneos en términos de reglas y estructura competitiva. Asimismo, se seleccionó el periodo 2000-2019 porque corresponde a una etapa reciente del béisbol moderno, con un calendario estable de 162 juegos por temporada y sin las distorsiones que generó la temporada 2020 por la pandemia de COVID-19. Con este filtro se obtuvieron 600 observaciones (30 equipos por temporada durante 20 años), lo cual asegura un tamaño de muestra suficiente para aplicar análisis con validez estadística.
 
@@ -114,7 +114,7 @@ Para el análisis de regresión múltiple se consideran, de forma simultánea, t
 \section{Análisis de Estadísticas Descriptivas}
 
 \subsection{Medidas de tendencia central y dispersión:}
-A partir del dateset maestro con las varibles y observaciones seleccionadas, se calculan las siguientes estadísticas descriptivas:
+A partir del dataset maestro con las varibles y observaciones seleccionadas, se calculan las siguientes estadísticas descriptivas:
 \begin{table}[H]
         \centering
         \caption{Estadísticas Descriptivas del dataset}
@@ -140,7 +140,7 @@ A partir del dateset maestro con las varibles y observaciones seleccionadas, se 
 A continuación se detallan las características principales:
 
 \begin{itemize}
-    \item \textbf{Victorias (W):} En promedio los equipos ganan 81 juegos por temporada , con una desviación estándar de 11.8. El rango va de 43 a 116 victorias, lo que refleja tanto equipos altamente competitivos como equipos en el extremo opuesto.
+    \item \textbf{Victorias (W):} En promedio los equipos ganan 81 juegos por temporada, con una desviación estándar de 11.8. El rango va de 43 a 116 victorias, lo que refleja tanto equipos altamente competitivos como equipos en el extremo opuesto.
     \item \textbf{Diferencia de carreras (RunDiff):} Tiene media cercana a cero, que sería esperado en un balance global de liga, pero una alta dispersión ($\approx 111$, rango de -337 a +300). Esto muestra que algunos equipos dominan ampliamente a sus rivales mientras otros son ampliamente superados.
     \item \textbf{ERA (Efectividad del pitcheo):} Promedia 4.25, con valores típicos entre 3.9 y 4.6 (IQR = 0.74). La dispersión es moderada y refleja diferencias en la calidad del pitcheo entre equipos, con casos extremos desde 2.94 hasta 5.71.
     \item \textbf{Jonrones (HR):} Los equipos conectan en promedio 173 cuadrangulares por temporada, con un rango entre 91 y 307. Esta variabilidad se ve reflejada por las distintas filosofías ofensivas.
@@ -160,7 +160,7 @@ Con el fin de comprender mejor el comportamiento de las variables y su relación
 \end{figure}
 
 Los histogramas confirman distribuciones aproximadamente simétricas en \textbf{W} y \textbf{L}, con centro en 81 victorias/derrotas. 
-\textbf{RunDiff} muestra gran dispersión, confirmarndo que algunos equipos superan a sus rivales por cientos de carreras, mientras otros son ampliamente superados. 
+\textbf{RunDiff} muestra gran dispersión, confirmando que algunos equipos superan a sus rivales por cientos de carreras, mientras otros son ampliamente superados. 
 \textbf{ERA} se concentra en torno a 4, reflejando diferencias moderadas en pitcheo. 
 \textbf{HR} se distribuye entre 100-300.
 \textbf{R} y \textbf{RA} tienen formas parecidas, centradas cerca de 740, lo que refleja equilibrio ofensivo-defensivo en la liga. 
@@ -195,7 +195,7 @@ En \textbf{RunDiff} se observan extremos tanto positivos como negativos, refleja
     \caption{Distribución de observaciones por liga (AL vs NL), 2000--2019.}
 \end{figure}
 
-El dataset está balanceado entre \textbf{NL} (52.2\%) y \textbf{AL} (47.8\%),y con esto se garantiza representatividad de ambas ligas, sin sesgos por desbalance en la muestra.
+El dataset está balanceado entre \textbf{NL} (52.2\%) y \textbf{AL} (47.8\%), y con esto se garantiza representatividad de ambas ligas, sin sesgos por desbalance en la muestra.
 
 \begin{figure}[H]
     \centering
@@ -214,7 +214,7 @@ El análisis mediante el método del rango intercuartílico (IQR) permitió iden
 
 \begin{itemize}
     \item \textbf{Victorias (W):} El caso más extremo corresponde a los Detroit Tigers en 2003, con solo 43 victorias, claramente fuera del rango intercuartílico (45--117). Esto refleja una de las peores campañas en la historia reciente de MLB.
-    \item \textbf{Jonrones (HR):} En 2019 se detectaron valores extraordinariamente altos en equipos como Minnesota Twins (307), New York Yankees (306), Houston Astros (288) y Los Angeles Dodgers (279), todos por encima del umbral superior (275.5). Esto coincide con el ``Año del jonrón''. en 2019, cuando se registró un récord colectivo histórico de cuadrangulares.
+    \item \textbf{Jonrones (HR):} En 2019 se detectaron valores extraordinariamente altos en equipos como Minnesota Twins (307), New York Yankees (306), Houston Astros (288) y Los Angeles Dodgers (279), todos por encima del umbral superior (275.5). Esto coincide con el ``Año del jonrón'' en 2019, cuando se registró un récord colectivo histórico de cuadrangulares.
     \item \textbf{Carreras anotadas (R):} Se identifican equipos con valores extremos, por ejemplo, los Yankees (2007) y Rockies (2000) con más de 968 carreras, y los Marlins (2013) o Mariners (2010) con apenas 513, fuera del rango esperado (517--962).
     \item \textbf{Juegos disputados (G):} Aunque la liga establece un calendario de 162 juegos, se detectan temporadas con 161 o 163 partidos, resultado de suspensiones o reprogramaciones (e.g., Cubs 2009, Rockies 2007, Rangers 2013).
     \item \textbf{Derrotas (L):} Nuevamente destacan los Tigers de 2003, con 119 derrotas, simétrico al outlier en victorias.
